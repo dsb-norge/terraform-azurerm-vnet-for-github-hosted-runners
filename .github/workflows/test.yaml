@@ -1,28 +1,34 @@
-#name: "Terraform module CI"
+name: "Terraform module CI"
 
-#on:
-#  pull_request:
-#    branches:
-#      - main
-#    types: [opened, synchronize, reopened]
-#  workflow_dispatch: # allows manual build
+# note:
+#   for this workflow to work from a new repo in the organization the following must be done:
+#     - allow the repo access to the organization secret ORG_TF_CICD_APP_PRIVATE_KEY here: https://github.com/organizations/dsb-norge/settings/secrets/actions
+#     - allow the repo access to the organization variables ORG_TF_CICD_APP_ID and ORG_TF_CICD_APP_INSTALLATION_ID here: https://github.com/organizations/dsb-norge/settings/variables/actions
+#     - allow the app 'dsb-norge-terraform-cicd-access' access to this repo by "configuring" the app from here: https://github.com/organizations/dsb-norge/settings/installations
 
-#env: 
-#    ARM_TENANT_ID: ${{ secrets.REPO_AZURE_DSB_TENANT_ID }}
-#    ARM_SUBSCRIPTION_ID: ${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}
-#    ARM_CLIENT_ID: ${{ secrets.REPO_AZURE_TERRAFORM_USER_SERVICE_PRINCIPAL }}
-#    ARM_USE_OIDC: true
-#    ARM_USE_AZUREAD: true
-#    TF_IN_AUTOMATION: true
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: # allows manual build
 
-#jobs:
-#  tf:
-#    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v0
-#    secrets: inherit
-#    permissions:
-#        contents: write  # required for checkout action. 
-#        id-token: write # required for Azre passwodless login
-#        pull-requests: write # required for commenting on PR
-#    with:
-#      terraform-version: "1.9.x"
-#      tflint-version: "v0.53.0"
+env:
+  ARM_TENANT_ID: ${{ secrets.REPO_AZURE_DSB_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}
+  ARM_CLIENT_ID: ${{ secrets.REPO_AZURE_TERRAFORM_USER_SERVICE_PRINCIPAL }}
+  ARM_USE_OIDC: true
+  ARM_USE_AZUREAD: true
+  TF_IN_AUTOMATION: true
+
+jobs:
+  tf:
+    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v0
+    secrets: inherit
+    permissions:
+      contents: write # required for checkout action.
+      id-token: write # required for Azure password-less login
+      pull-requests: write # required for commenting on PR
+    with:
+      terraform-version: "1.11.x"
+      tflint-version: "v0.55.1"
