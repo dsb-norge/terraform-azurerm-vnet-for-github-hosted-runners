@@ -61,7 +61,7 @@ resource "azurerm_network_security_group" "this" {
   resource_group_name = azurerm_resource_group.this.name
 
   tags = merge(var.tags, {
-    Description = "Network security group for '${each.key}' subnet in ${var.system_name} infrastructure"
+    Description = "Network security group for '${each.key}' subnet in '${var.system_name}' infrastructure"
   })
 
   dynamic "security_rule" {
