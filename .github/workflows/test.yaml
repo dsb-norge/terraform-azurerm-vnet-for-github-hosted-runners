@@ -11,7 +11,16 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
-  workflow_dispatch: # allows manual build
+
+  # allows manual build
+  workflow_dispatch:
+
+  # we want this workflow to run when release PR's are created
+  #   since these PR's are created by actions they do not raise the pull_request event
+  workflow_run:
+    workflows: ["Tag and release terraform module"]
+    types: [completed]
+    branches: [main]
 
 env:
   ARM_TENANT_ID: ${{ secrets.REPO_AZURE_DSB_TENANT_ID }}
@@ -25,6 +34,10 @@ jobs:
   tf:
     uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v0
     secrets: inherit
+    # if triggered by workflow_run, we only run if the triggering workflow was successful
+    if: |
+      github.event_name != 'workflow_run' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     permissions:
       contents: write # required for checkout action.
       id-token: write # required for Azure password-less login
