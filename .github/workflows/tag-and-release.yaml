@@ -13,5 +13,5 @@ on:
 
 jobs:
   tag-and-release:
-    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-release.yaml@v0
+    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-release.yaml@fix-release # TODO: revert to v0
     secrets: inherit
