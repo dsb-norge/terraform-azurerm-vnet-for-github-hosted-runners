@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v0.1.1...v0.2.0) (2025-03-26)
+
+
+### Features
+
+* **outputs:** add vnet resource id as `virtual_network_resource_id`. ([a19d8e6](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/a19d8e69832bb937b1977d0a80fa2efd643dc5cb))
+
 ## [0.1.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v0.1.0...v0.1.1) (2025-03-24)
 
 
