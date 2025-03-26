@@ -91,10 +91,25 @@ module "gh_vnet" {
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_github_network_settings_id"></a> [github\_network\_settings\_id](#output\_github\_network\_settings\_id) | The resource ID of the GitHub Network settings resource |
-| <a name="output_github_network_settings_name"></a> [github\_network\_settings\_name](#output\_github\_network\_settings\_name) | Name of the Github Network settings resource |
-| <a name="output_outbound_ip_address"></a> [outbound\_ip\_address](#output\_outbound\_ip\_address) | The outbound NAT public IP address used by runners to access the internet |
-| <a name="output_resource_group_id"></a> [resource\_group\_id](#output\_resource\_group\_id) | The resource ID of the resource group containing the resources for the Azure Virtual Network (VNet) designed to host GitHub hosted Actions runners |
+The following outputs are exported:
+
+### <a name="output_github_network_settings_id"></a> [github\_network\_settings\_id](#output\_github\_network\_settings\_id)
+
+Description: The resource ID of the GitHub Network settings resource
+
+### <a name="output_github_network_settings_name"></a> [github\_network\_settings\_name](#output\_github\_network\_settings\_name)
+
+Description: Name of the Github Network settings resource
+
+### <a name="output_outbound_ip_address"></a> [outbound\_ip\_address](#output\_outbound\_ip\_address)
+
+Description: The outbound NAT public IP address used by runners to access the internet
+
+### <a name="output_resource_group_id"></a> [resource\_group\_id](#output\_resource\_group\_id)
+
+Description: The resource ID of the resource group containing the resources for the Azure Virtual Network (VNet) designed to host GitHub hosted Actions runners
+
+### <a name="output_virtual_network_resource_id"></a> [virtual\_network\_resource\_id](#output\_virtual\_network\_resource\_id)
+
+Description: The resource ID of the virtual network (VNet) designed to host GitHub hosted Actions runners
 <!-- END_TF_DOCS -->

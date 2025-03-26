@@ -19,3 +19,8 @@ output "resource_group_id" {
   description = "The resource ID of the resource group containing the resources for the Azure Virtual Network (VNet) designed to host GitHub hosted Actions runners"
   value       = module.gh_vnet.resource_group_id
 }
+
+output "virtual_network_resource_id" {
+  description = "The resource ID of the virtual network (VNet) designed to host GitHub hosted Actions runners"
+  value       = module.gh_vnet.virtual_network_resource_id
+}
