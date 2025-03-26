@@ -67,4 +67,19 @@ run "validate_basic_example" {
     condition     = can(cidrnetmask("${output.outbound_ip_address}/32"))
     error_message = "The output outbound_ip_address is not a valid CIDR netmask."
   }
+
+  assert {
+    condition     = can(output.virtual_network_resource_id)
+    error_message = "Failed to access virtual_network_resource_id output from the module in the basic example."
+  }
+
+  assert {
+    condition     = length(output.virtual_network_resource_id) > 0
+    error_message = "The output virtual_network_resource_id is empty."
+  }
+
+  assert {
+    condition     = strcontains(output.virtual_network_resource_id, "/virtualNetworks/")
+    error_message = "The output virtual_network_resource_id does not contain the expected '/virtualNetworks/' pattern."
+  }
 }
