@@ -40,25 +40,29 @@ variable "github_database_id" {
   }
 }
 
-variable "network_address_space" {
+variable "network_specs" {
   description = <<-DESCRIPTION
-    The address space that is used to create Virtual Network for GitHub hosted runners.
+    The network specs that are used to create Virtual Network for GitHub hosted runners.
 
     The address space will be divided to two subnets: one for runners and one for private endpoints.
     Which means: max runner concurrency = vnet_space / 2 - 5 (addresses that azure reserves for system)
+    The tags will be added to the virtual network to support Azure IPAM provided address spaces.
 
     Example:
-      network_address_space = "10.0.0.1/25"
+      network_specs = {
+        address_space = "10.0.0.1/25"
+      }
       "/25" means 128 addresses total
       available addresses per subnet = 128 / 2 = 64
       max runner concurrency = 64 - 5 = 59
     DESCRIPTION
-  type        = string
-  nullable    = false
-
+  type = object({
+    address_space = string
+    tags          = optional(map(string))
+  })
   validation {
     error_message = "The address space provided in `network_address_space` is not a valid CIDR notation."
-    condition     = can(cidrnetmask(var.network_address_space))
+    condition     = can(cidrnetmask(var.network_specs.address_space))
   }
 }
 

@@ -4,7 +4,7 @@ This module provisions an Azure Virtual Network (VNet) designed to host GitHub h
 
 The module performs the following actions:
 
-1. **Virtual Network Creation:** Deploys an Azure Virtual Network with a specified address space.
+1. **Virtual Network Creation:** Deploys an Azure Virtual Network with a specified address space. It support network space provided by Azure IPAM (mandatory Virtual Network tagging for reservation association)
 2. **Subnet Configuration:** Creates two subnets within the VNet:
     * A dedicated subnet for GitHub Actions runners, configured with the `GitHub.Network/networkSettings` delegation, allowing GitHub to manage network interfaces within the subnet.
     * A subnet for private endpoints, facilitating secure access to Azure services.
@@ -25,6 +25,30 @@ This module simplifies the deployment of a secure and isolated network environme
 ## Usage
 
 Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/tree/main/examples) for usage of module.
+
+## Migration Notes
+
+### Version 1.X
+
+* **Breaking Change**: The variable `network_address_space` has been renamed to `network_specs` and changed from type `string` to `object`.
+  * **Old Configuration**:
+  
+    ```hcl
+    network_address_space = "10.0.0.0/25"
+    ```
+
+  * **New Configuration**:
+  
+    ```hcl
+    network_specs = {
+      address_space = "10.0.0.0/25"
+      tags = {
+        IPAMReservation = "IpamReservationID"
+      }
+    }
+    ```
+
+  * Update your configuration to match the new type to avoid errors.
 
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-disable-file MD013 -->

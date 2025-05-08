@@ -5,8 +5,8 @@ locals {
   should_create_nat_gateway           = !var.disable_nat_gateway
 
   # network address space
-  runner_subnet_address_prefixes = [cidrsubnet(var.network_address_space, 1, 0)]
-  pe_subnet_address_prefixes     = [cidrsubnet(var.network_address_space, 1, 1)]
+  runner_subnet_address_prefixes = [cidrsubnet(var.network_specs.address_space, 1, 0)]
+  pe_subnet_address_prefixes     = [cidrsubnet(var.network_specs.address_space, 1, 1)]
 
 }
 
@@ -126,9 +126,9 @@ module "gh_runner_vnet" {
   name                = module.runner_name.virtual_network.name_unique
   location            = var.location
   resource_group_name = azurerm_resource_group.this.name
-  address_space       = [var.network_address_space]
+  address_space       = [var.network_specs.address_space]
 
-  tags = merge(var.tags, {
+  tags = merge(var.tags, var.network_specs.tags, {
     Description = "Virtual network designed to host GitHub hosted Actions runners in the '${var.system_name}' infrastructure"
   })
 
