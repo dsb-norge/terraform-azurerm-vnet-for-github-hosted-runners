@@ -72,8 +72,13 @@ module "gh_vnet" {
   source = "../../"
 
   # required inputs
-  github_database_id    = "123456789"
-  network_address_space = "10.0.0.0/24"
+  github_database_id = "123456789"
+  network_specs = {
+    address_space = "10.0.0.0/24"
+    tags = {
+      ExampleIPAMTag = "IPAM-reservation-ID"
+    }
+  }
 
   # the module comes with 2 built-in NSGs, one for the runner subnet and one for the private endpoint subnet
   # here we use the built-in one for the private endpoint subnet

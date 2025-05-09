@@ -68,8 +68,13 @@ module "gh_vnet" {
   source = "../../"
 
   # required inputs
-  github_database_id    = "123456789"
-  network_address_space = "10.3.0.0/16"
+  github_database_id = "123456789"
+  network_specs = {
+    address_space = "10.3.0.0/16"
+    tags = {
+      ExapmleIPAMTag = "IPAM-reservation-ID"
+    }
+  }
 
   # disable the module's built-in NSGs
   disable_builtin_nsg_for_runner_subnet           = true

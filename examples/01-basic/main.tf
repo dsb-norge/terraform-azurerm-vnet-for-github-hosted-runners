@@ -10,6 +10,11 @@ provider "azurerm" {
 module "gh_vnet" {
   source = "../../"
 
-  github_database_id    = "123456789"
-  network_address_space = "10.0.0.0/24"
+  github_database_id = "123456789"
+  network_specs = {
+    address_space = "10.0.0.0/24"
+    tags = {
+      ExapmleIPAMTag = "IPAM-reservation-ID"
+    }
+  }
 }

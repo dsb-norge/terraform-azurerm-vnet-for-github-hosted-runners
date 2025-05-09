@@ -29,16 +29,28 @@ run "verify_github_database_id_validation" {
   ]
 }
 
-run "verify_network_address_space_format" {
+run "verify_network_specs_address_space_format" {
   command = plan
 
   variables {
-    network_address_space = "invalid-cidr"
+    network_specs = {
+      address_space = "invalid-cidr"
+    }
   }
 
   expect_failures = [
-    var.network_address_space,
+    var.network_specs,
   ]
+}
+
+run "varify_network_specs_allowed_without_tags" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space = "10.0.0.0/25"
+    }
+  }
 }
 
 run "verify_system_name_validation" {

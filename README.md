@@ -4,7 +4,7 @@ This module provisions an Azure Virtual Network (VNet) designed to host GitHub h
 
 The module performs the following actions:
 
-1. **Virtual Network Creation:** Deploys an Azure Virtual Network with a specified address space.
+1. **Virtual Network Creation:** Deploys an Azure Virtual Network with a specified address space. It support network space provided by Azure IPAM (mandatory Virtual Network tagging for reservation association)
 2. **Subnet Configuration:** Creates two subnets within the VNet:
     * A dedicated subnet for GitHub Actions runners, configured with the `GitHub.Network/networkSettings` delegation, allowing GitHub to manage network interfaces within the subnet.
     * A subnet for private endpoints, facilitating secure access to Azure services.
@@ -25,6 +25,30 @@ This module simplifies the deployment of a secure and isolated network environme
 ## Usage
 
 Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/tree/main/examples) for usage of module.
+
+## Migration Notes
+
+### Version 1.X
+
+* **Breaking Change**: The variable `network_address_space` has been renamed to `network_specs` and changed from type `string` to `object`.
+  * **Old Configuration**:
+  
+    ```hcl
+    network_address_space = "10.0.0.0/25"
+    ```
+
+  * **New Configuration**:
+  
+    ```hcl
+    network_specs = {
+      address_space = "10.0.0.0/25"
+      tags = {
+        IPAMReservation = "IpamReservationID"
+      }
+    }
+    ```
+
+  * Update your configuration to match the new type to avoid errors.
 
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-disable-file MD013 -->
@@ -60,7 +84,7 @@ Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-gith
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_github_database_id"></a> [github\_database\_id](#input\_github\_database\_id) | The ID of the GitHub organization / enterprise database, where runners to be deployed.<br/>How to obtain this value depends on if you are creating a vnet for use by a GitHub organization or an enterprise.<br/><br/>To obtain the value for an enterprise, you can use the following GraphQL query with the GitHub CLI:<pre># login to your enterprise:<br/>gh auth login --scopes 'read:enterprise'<br/><br/># define the query<br/>qlQueryBusinessId='query ($slug: String!) { enterprise(slug: $slug) { databaseId }}'<br/>slug='YOUR ENTERPRISE SLUG HERE'<br/><br/># query the api<br/>gh api graphql --field slug="$slug" --raw-field query="$qlQueryBusinessId" --jq '.data.enterprise.databaseId'</pre>To obtain the value for an organization, you can use the following GraphQL query with the GitHub CLI:<pre># login to your organization:<br/>gh auth login<br/><br/># define the query<br/>qlQueryBusinessId='query ($slug: String!) { organization(login: $slug) { databaseId }}'<br/>slug='YOUR ORGANIZATION SLUG HERE'<br/><br/># query the api<br/>gh api graphql --field slug="$slug" --raw-field query="$qlQueryBusinessId" --jq '.data.organization.databaseId'</pre> | `string` | n/a | yes |
-| <a name="input_network_address_space"></a> [network\_address\_space](#input\_network\_address\_space) | The address space that is used to create Virtual Network for GitHub hosted runners.<br/><br/>The address space will be divided to two subnets: one for runners and one for private endpoints.<br/>Which means: max runner concurrency = vnet\_space / 2 - 5 (addresses that azure reserves for system)<br/><br/>Example:<br/>  network\_address\_space = "10.0.0.1/25"<br/>  "/25" means 128 addresses total<br/>  available addresses per subnet = 128 / 2 = 64<br/>  max runner concurrency = 64 - 5 = 59 | `string` | n/a | yes |
+| <a name="input_network_specs"></a> [network\_specs](#input\_network\_specs) | The network specs that are used to create Virtual Network for GitHub hosted runners.<br/><br/>The address space will be divided to two subnets: one for runners and one for private endpoints.<br/>Which means: max runner concurrency = vnet\_space / 2 - 5 (addresses that azure reserves for system)<br/>The tags will be added to the virtual network to support Azure IPAM provided address spaces.<br/><br/>Example:<br/>  network\_specs = {<br/>    address\_space = "10.0.0.1/25"<br/>  }<br/>  "/25" means 128 addresses total<br/>  available addresses per subnet = 128 / 2 = 64<br/>  max runner concurrency = 64 - 5 = 59 | <pre>object({<br/>    address_space = string<br/>    tags          = optional(map(string))<br/>  })</pre> | n/a | yes |
 | <a name="input_disable_builtin_nsg_for_private_endpoint_subnet"></a> [disable\_builtin\_nsg\_for\_private\_endpoint\_subnet](#input\_disable\_builtin\_nsg\_for\_private\_endpoint\_subnet) | Disable the default NSG rule for the private endpoint subnet that is built in to this module.<br/><br/>Note: you can also bring your own NSG rules by using the input variables `nsg_for_runner_subnet` and `nsg_for_private_endpoint_subnet`. | `bool` | `false` | no |
 | <a name="input_disable_builtin_nsg_for_runner_subnet"></a> [disable\_builtin\_nsg\_for\_runner\_subnet](#input\_disable\_builtin\_nsg\_for\_runner\_subnet) | Disable the default NSG rule for the GitHub hosted runner subnet that is built in to this module.<br/><br/>Note: you can also bring your own NSG rules by using the input variables `nsg_for_runner_subnet` and `nsg_for_private_endpoint_subnet`. | `bool` | `false` | no |
 | <a name="input_disable_nat_gateway"></a> [disable\_nat\_gateway](#input\_disable\_nat\_gateway) | Disable creating resources that allow access to the Internet from the GitHub hosted runner subnet.<br/><br/>By default this module creates a NAT gateway and a public IP to allow the GitHub hosted runners to access the Internet.<br/>By setting this variable to true, these resources will not be created.<br/><br/>NOTE:<br/>  Internet access is required for the GitHub hosted runners to function. If you set this to disabled, you must provide your own means of Internet access. For example via a peered virtual network. | `bool` | `false` | no |
