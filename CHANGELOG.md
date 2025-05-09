@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v0.2.0...v1.0.0) (2025-05-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* support of virtual network specific tags for Azure IPAM. ([#10](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/10))
+
+### Code Refactoring
+
+* support of virtual network specific tags for Azure IPAM. ([#10](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/10)) ([15cc795](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/15cc79592eda9c7d1387b3e5e3d5efee110ee4b3))
+
 ## [0.2.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v0.1.1...v0.2.0) (2025-03-26)
 
 
