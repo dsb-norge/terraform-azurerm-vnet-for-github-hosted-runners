@@ -101,6 +101,13 @@ module "gh_vnet" {
       create_dfs_pe   = true
   } }
 
+  # databricks private endpoints
+  databricks_private_endpoints = {
+    dbx1 = {
+      resource_id = azurerm_databricks_workspace.example.id
+    }
+  }
+
   # resource tags can be provided
   tags = {
     Environment = "Example"

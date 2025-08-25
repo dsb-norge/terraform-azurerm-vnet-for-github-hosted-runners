@@ -131,6 +131,23 @@ run "verify_key_vault_resource_id_validation" {
   ]
 }
 
+# Test databricks private endpoints validation
+run "verify_databricks_resource_id_validation" {
+  command = plan
+
+  variables {
+    databricks_private_endpoints = {
+      "test-dbx" = {
+        resource_id = "invalid-resource-id"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.databricks_private_endpoints,
+  ]
+}
+
 # Test storage account private endpoints validation
 run "verify_storage_account_resource_id_validation" {
   command = plan

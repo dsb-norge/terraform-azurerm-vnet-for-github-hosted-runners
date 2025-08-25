@@ -66,6 +66,28 @@ variable "network_specs" {
   }
 }
 
+variable "databricks_private_endpoints" {
+  description = <<-DESCRIPTION
+    Map of Databricks workspaces to create private endpoints for.
+
+    Private endpoints will be created for the Databricks workspaces in the GitHub hosted runner virtual network.
+    Privatlink private DNS zone for Databricks will also be created and linked to the GitHub hosted runner virtual network.
+
+    DESCRIPTION
+  type = map(object({
+    resource_id = string
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for dbx_name, dbx_conf in var.databricks_private_endpoints :
+      can(provider::azurerm::parse_resource_id(dbx_conf.resource_id))
+    ])
+    error_message = "One or more Databricks workspace resource IDs in the input 'databricks_private_endpoints' are not valid Azure resource IDs."
+  }
+}
+
 variable "disable_builtin_nsg_for_private_endpoint_subnet" {
   description = <<-DESCRIPTION
     Disable the default NSG rule for the private endpoint subnet that is built in to this module.
