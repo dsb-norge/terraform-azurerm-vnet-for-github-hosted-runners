@@ -1,5 +1,4 @@
 # Private endpoints for Databricks
-
 locals {
   need_to_create_dbx_pe = length(var.databricks_private_endpoints) > 0
 
