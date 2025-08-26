@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v1.0.0...v1.1.0) (2025-08-26)
+
+
+### Features
+
+* Databricks private endpoint support ([#14](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/14)) ([f6dc66c](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/f6dc66c75e333957754f65e990f5d72832fdb739))
+
 ## [1.0.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v0.2.0...v1.0.0) (2025-05-09)
 
 
