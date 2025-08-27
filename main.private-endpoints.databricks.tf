@@ -17,7 +17,7 @@ resource "azurerm_private_dns_zone" "databricks" {
   # Create only one private DNS zone if there is at least one Databricks workspace to link to
   count = local.need_to_create_dbx_pe ? 1 : 0
 
-  name                = "privatelink.databricks.azure.net"
+  name                = "privatelink.azuredatabricks.net"
   resource_group_name = azurerm_resource_group.this.name
 }
 
