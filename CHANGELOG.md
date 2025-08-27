@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v1.1.0...v1.1.1) (2025-08-27)
+
+
+### Bug Fixes
+
+* wrong private DNS zone for Azure databricks ([#16](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/16)) ([e320ce1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/e320ce1bd2beea0ed9f5ef89e00b379fdb8a942c))
+
 ## [1.1.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v1.0.0...v1.1.0) (2025-08-26)
 
 
