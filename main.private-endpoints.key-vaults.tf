@@ -9,6 +9,7 @@ locals {
     kv_name => merge(kv_conf, {
       # we parse the id to get the resource name and resource group name
       kv_details = provider::azurerm::parse_resource_id(kv_conf.resource_id)
+      tags       = kv_conf.tags != null ? kv_conf.tags : {}
     })
   }
 }
