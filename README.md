@@ -49,6 +49,10 @@ Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-gith
     ```
 
   * Update your configuration to match the new type to avoid errors.
+  
+### Version 2.X
+
+* **Breaking Change**: Minimum required version of Terraform is 1.12.X
 
 <!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-disable-file MD013 -->
