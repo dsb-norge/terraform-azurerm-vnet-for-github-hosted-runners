@@ -123,7 +123,7 @@ resource "azurerm_private_endpoint" "storage" {
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
 
   tags = merge(var.tags, {
-    Description = "Private endpoint for storage account '${each.value.account_name}' located in resource group '${each.value.account_rg_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    Description = var.storage_pe_description_tag != "" ? var.storage_pe_description_tag : "PE for storage account '${each.value.account_name}' in resource group '${each.value.account_rg_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
   })
 
   private_service_connection {

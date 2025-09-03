@@ -88,6 +88,20 @@ variable "databricks_private_endpoints" {
   }
 }
 
+variable "dbx_pe_description_tag" {
+  description = <<EOT
+Custom description for Databricks private endpoints.
+This will be used as the 'Description' tag for each Databricks private endpoint.
+Max length: 250 characters.
+EOT
+  type        = string
+  default     = ""
+  validation {
+    condition     = length(var.dbx_pe_description_tag) <= 250
+    error_message = "The dbx_pe_description_tag must not exceed 250 characters."
+  }
+}
+
 variable "disable_builtin_nsg_for_private_endpoint_subnet" {
   description = <<-DESCRIPTION
     Disable the default NSG rule for the private endpoint subnet that is built in to this module.
@@ -123,6 +137,20 @@ variable "disable_nat_gateway" {
   type        = bool
   default     = false
   nullable    = false
+}
+
+variable "key_vault_pe_description_tag" {
+  description = <<EOT
+Custom description for key vault private endpoints.
+This will be used as the 'Description' tag for each key vault private endpoint.
+Max length: 250 characters.
+EOT
+  type        = string
+  default     = ""
+  validation {
+    condition     = length(var.key_vault_pe_description_tag) <= 250
+    error_message = "The key_vault_pe_description_tag must not exceed 250 characters."
+  }
 }
 
 variable "key_vault_private_endpoints" {
@@ -294,6 +322,20 @@ variable "storage_account_private_endpoints" {
       can(provider::azurerm::parse_resource_id(st_conf.resource_id))
     ])
     error_message = "One or more storage account resource IDs in the input 'storage_account_private_endpoints' are not valid Azure resource IDs."
+  }
+}
+
+variable "storage_pe_description_tag" {
+  description = <<EOT
+Custom description for storage account private endpoints.
+This will be used as the 'Description' tag for each storage account private endpoint.
+Max length: 250 characters.
+EOT
+  type        = string
+  default     = ""
+  validation {
+    condition     = length(var.storage_pe_description_tag) <= 250
+    error_message = "The storage_pe_description_tag must not exceed 250 characters."
   }
 }
 

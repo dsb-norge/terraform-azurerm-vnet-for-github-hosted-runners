@@ -114,6 +114,42 @@ run "verify_tags_validation_null_value" {
   ]
 }
 
+run "verify_storage_pe_description_tag_too_long" {
+  command = plan
+
+  variables {
+    storage_pe_description_tag = "This is a very long description that is intentionally made to exceed the maximum allowed length of 250 characters for the storage_pe_description_tag variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+  }
+
+  expect_failures = [
+    var.storage_pe_description_tag,
+  ]
+}
+
+run "verify_key_vault_pe_description_tag_too_long" {
+  command = plan
+
+  variables {
+    key_vault_pe_description_tag = "This is a very long description that is intentionally made to exceed the maximum allowed length of 250 characters for the key_vault_pe_description_tag variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+  }
+
+  expect_failures = [
+    var.key_vault_pe_description_tag,
+  ]
+}
+
+run "verify_dbx_pe_description_tag_too_long" {
+  command = plan
+
+  variables {
+    dbx_pe_description_tag = "This is a very long description that is intentionally made to exceed the maximum allowed length of 250 characters for the dbx_pe_description_tag variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+  }
+
+  expect_failures = [
+    var.dbx_pe_description_tag,
+  ]
+}
+
 # Test resource_id validation for key_vault_private_endpoints
 run "verify_key_vault_resource_id_validation" {
   command = plan
