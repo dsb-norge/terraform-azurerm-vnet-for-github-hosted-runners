@@ -49,9 +49,12 @@ resource "azurerm_private_endpoint" "key_vault" {
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
 
-  tags = merge(var.tags, each.value.tags, {
+  tags = merge({
     Description = "PE for Azure Key Vault '${each.value.kv_details.resource_name}' in resource group '${each.value.kv_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
-  })
+    },
+    var.tags,
+    each.value.tags
+  )
 
   private_service_connection {
     name                           = "keyVaultPrivateLink-${each.value.kv_details.resource_name}"
