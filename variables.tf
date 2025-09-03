@@ -64,6 +64,11 @@ variable "network_specs" {
     error_message = "The address space provided in `network_address_space` is not a valid CIDR notation."
     condition     = can(cidrnetmask(var.network_specs.address_space))
   }
+
+  validation {
+    error_message = "One or more tags in 'network_specs.tags' exceed 250 characters: ${join(", ", [for k, v in var.network_specs.tags != null ? var.network_specs.tags : {} : k if length(v) > 250])}"
+    condition     = var.network_specs.tags == null ? true : alltrue([for t in var.network_specs.tags : length(t) <= 250])
+  }
 }
 
 variable "databricks_private_endpoints" {
@@ -76,6 +81,7 @@ variable "databricks_private_endpoints" {
     DESCRIPTION
   type = map(object({
     resource_id = string
+    tags        = optional(map(string), {})
   }))
   default = {}
 
@@ -86,19 +92,15 @@ variable "databricks_private_endpoints" {
     ])
     error_message = "One or more Databricks workspace resource IDs in the input 'databricks_private_endpoints' are not valid Azure resource IDs."
   }
-}
 
-variable "dbx_pe_description_tag" {
-  description = <<EOT
-Custom description for Databricks private endpoints.
-This will be used as the 'Description' tag for each Databricks private endpoint.
-Max length: 250 characters.
-EOT
-  type        = string
-  default     = ""
   validation {
-    condition     = length(var.dbx_pe_description_tag) <= 250
-    error_message = "The dbx_pe_description_tag must not exceed 250 characters."
+    error_message = "One or more tags in 'databricks_private_endpoints' exceed 250 characters."
+    condition = alltrue([
+      for dbx_name, dbx_conf in var.databricks_private_endpoints :
+      alltrue([
+        for k, v in dbx_conf.tags : length(v) <= 250
+      ])
+    ])
   }
 }
 
@@ -139,20 +141,6 @@ variable "disable_nat_gateway" {
   nullable    = false
 }
 
-variable "key_vault_pe_description_tag" {
-  description = <<EOT
-Custom description for key vault private endpoints.
-This will be used as the 'Description' tag for each key vault private endpoint.
-Max length: 250 characters.
-EOT
-  type        = string
-  default     = ""
-  validation {
-    condition     = length(var.key_vault_pe_description_tag) <= 250
-    error_message = "The key_vault_pe_description_tag must not exceed 250 characters."
-  }
-}
-
 variable "key_vault_private_endpoints" {
   description = <<-DESCRIPTION
     Map of key vaults to create private endpoints for.
@@ -163,6 +151,7 @@ variable "key_vault_private_endpoints" {
     DESCRIPTION
   type = map(object({
     resource_id = string
+    tags        = optional(map(string), {})
   }))
   default = {}
 
@@ -172,6 +161,16 @@ variable "key_vault_private_endpoints" {
       can(provider::azurerm::parse_resource_id(kv_conf.resource_id))
     ])
     error_message = "One or more key vault resource IDs in the input 'key_vault_private_endpoints' are not valid Azure resource IDs."
+  }
+
+  validation {
+    error_message = "One or more tags in 'key_vault_private_endpoints' exceed 250 characters."
+    condition = alltrue([
+      for kv_name, kv_conf in var.key_vault_private_endpoints :
+      alltrue([
+        for k, v in kv_conf.tags : length(v) <= 250
+      ])
+    ])
   }
 }
 
@@ -297,6 +296,7 @@ variable "storage_account_private_endpoints" {
     create_table_pe = optional(bool, false)
     create_web_pe   = optional(bool, false)
     create_dfs_pe   = optional(bool, false)
+    tags            = optional(map(string), {})
   }))
   default  = {}
   nullable = false
@@ -323,19 +323,15 @@ variable "storage_account_private_endpoints" {
     ])
     error_message = "One or more storage account resource IDs in the input 'storage_account_private_endpoints' are not valid Azure resource IDs."
   }
-}
 
-variable "storage_pe_description_tag" {
-  description = <<EOT
-Custom description for storage account private endpoints.
-This will be used as the 'Description' tag for each storage account private endpoint.
-Max length: 250 characters.
-EOT
-  type        = string
-  default     = ""
   validation {
-    condition     = length(var.storage_pe_description_tag) <= 250
-    error_message = "The storage_pe_description_tag must not exceed 250 characters."
+    error_message = "One or more tags in 'storage_account_private_endpoints' exceed 250 characters."
+    condition = alltrue([
+      for st_name, st_conf in var.storage_account_private_endpoints :
+      alltrue([
+        for k, v in st_conf.tags : length(v) <= 250
+      ])
+    ])
   }
 }
 
@@ -377,5 +373,10 @@ variable "tags" {
   validation {
     condition     = alltrue([for k, v in var.tags : v != null ? length(v) > 0 : false])
     error_message = "One or more null or empty string values found in the map 'tags', this is not allowed."
+  }
+
+  validation {
+    error_message = "One or more tags exceed 250 characters: ${join(", ", [for k, v in var.tags : k if v != null && length(v) > 250])}"
+    condition     = alltrue([for k, v in var.tags : v != null ? length(v) <= 250 : true])
   }
 }
