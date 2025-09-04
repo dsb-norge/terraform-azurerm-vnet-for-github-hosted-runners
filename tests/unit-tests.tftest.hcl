@@ -114,6 +114,94 @@ run "verify_tags_validation_null_value" {
   ]
 }
 
+run "verify_tags_value_length_too_long" {
+  command = plan
+
+  variables {
+    tags = { "key" = "This is a very long value that is intentionally made to exceed the maximum allowed length of 250 characters for the tags variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890" }
+  }
+
+  expect_failures = [
+    var.tags,
+  ]
+}
+
+run "verify_storage_pe_tags_value_too_long" {
+  command = plan
+
+  variables {
+    storage_account_private_endpoints = {
+      "test-sa" = {
+        resource_id    = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Storage/storageAccounts/test-sa"
+        create_blob_pe = true
+        tags = {
+          "key" = "This is a very long value that is intentionally made to exceed the maximum allowed length of 250 characters for the tags variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+        }
+      }
+    }
+  }
+
+  expect_failures = [
+    var.storage_account_private_endpoints,
+  ]
+}
+
+run "verify_key_vault_pe_tags_value_too_long" {
+  command = plan
+
+  variables {
+    key_vault_private_endpoints = {
+      "test-kv" = {
+        resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.KeyVault/vaults/test-kv"
+        tags = {
+          "key" = "This is a very long value that is intentionally made to exceed the maximum allowed length of 250 characters for the tags variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+        }
+      }
+    }
+  }
+
+  expect_failures = [
+    var.key_vault_private_endpoints,
+  ]
+
+}
+
+run "verify_databricks_private_endpoints_tags_value_too_long" {
+  command = plan
+
+  variables {
+    databricks_private_endpoints = {
+      "test-dbx" = {
+        resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Databricks/workspaces/test-dbx"
+        tags = {
+          "key" = "This is a very long value that is intentionally made to exceed the maximum allowed length of 250 characters for the tags variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+        }
+      }
+    }
+  }
+
+  expect_failures = [
+    var.databricks_private_endpoints,
+  ]
+}
+
+run "verify_network_specs_tags_value_too_long" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space = "10.0.0.0/25"
+      tags = {
+        "key" = "This is a very long value that is intentionally made to exceed the maximum allowed length of 250 characters for the tags variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.network_specs,
+  ]
+}
+
 # Test resource_id validation for key_vault_private_endpoints
 run "verify_key_vault_resource_id_validation" {
   command = plan

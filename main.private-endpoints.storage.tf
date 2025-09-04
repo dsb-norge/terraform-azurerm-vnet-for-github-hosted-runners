@@ -98,6 +98,7 @@ locals {
 
         # go through the mapping to get the correct DNS resource id
         private_dns_zone_id = azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id
+        tags                = acc_conf.tags != null ? acc_conf.tags : {}
       }
     }
   ]...)
@@ -122,9 +123,12 @@ resource "azurerm_private_endpoint" "storage" {
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
 
-  tags = merge(var.tags, {
-    Description = "Private endpoint for storage account '${each.value.account_name}' located in resource group '${each.value.account_rg_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
-  })
+  tags = merge({
+    Description = "PE for storage account '${each.value.account_name}' in resource group '${each.value.account_rg_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+    each.value.tags
+  )
 
   private_service_connection {
     name                           = "storagePrivateLink-${each.value.account_name}-${each.value.subresource_name}"

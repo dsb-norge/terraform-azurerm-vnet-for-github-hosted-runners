@@ -48,9 +48,12 @@ resource "azurerm_private_endpoint" "databricks" {
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
 
-  tags = merge(var.tags, {
-    Description = "Private endpoint for Azure Databricks '${each.value.dbx_details.resource_name}' located in resource group '${each.value.dbx_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
-  })
+  tags = merge({
+    Description = "PE for Azure Databricks '${each.value.dbx_details.resource_name}' in resource group '${each.value.dbx_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+    each.value.tags,
+  )
 
   private_service_connection {
     name                           = "databricksPrivateLink-${each.value.dbx_details.resource_name}"

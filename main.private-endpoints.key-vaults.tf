@@ -9,6 +9,7 @@ locals {
     kv_name => merge(kv_conf, {
       # we parse the id to get the resource name and resource group name
       kv_details = provider::azurerm::parse_resource_id(kv_conf.resource_id)
+      tags       = kv_conf.tags != null ? kv_conf.tags : {}
     })
   }
 }
@@ -49,9 +50,12 @@ resource "azurerm_private_endpoint" "key_vault" {
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
 
-  tags = merge(var.tags, {
-    Description = "Private endpoint for Azure Key Vault '${each.value.kv_details.resource_name}' located in resource group '${each.value.kv_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
-  })
+  tags = merge({
+    Description = "PE for Azure Key Vault '${each.value.kv_details.resource_name}' in resource group '${each.value.kv_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+    each.value.tags
+  )
 
   private_service_connection {
     name                           = "keyVaultPrivateLink-${each.value.kv_details.resource_name}"
