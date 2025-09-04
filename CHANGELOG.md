@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v1.1.1...v2.0.0) (2025-09-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Introduce tag validation to be sure that tags are not longer than 250 characters (Azure requirement). This requeired upgrade of min version of Terraform to 1.12 feat: possibility to override default Description tag on PE and Network resources, along with BYO tags. docs: README.md Migration notes to v2.x
+
+### Bug Fixes
+
+* Introduce tag validation to be sure that tags are not longer than 250 characters (Azure requirement). This requeired upgrade of min version of Terraform to 1.12 feat: possibility to override default Description tag on PE and Network resources, along with BYO tags. docs: README.md Migration notes to v2.x ([37e7067](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/37e7067134e55446851b2709591c55a97b20c66b))
+
 ## [1.1.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v1.1.0...v1.1.1) (2025-08-27)
 
 
