@@ -46,6 +46,11 @@ resource "azurerm_private_dns_zone" "storage" {
 
   name                = "privatelink.${each.value}.core.windows.net"
   resource_group_name = azurerm_resource_group.this.name
+  tags = merge({
+    Description = "Private DNS zone for Azure Storage Account private endpoint connections in the network '${module.gh_runner_vnet.name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+  )
 }
 
 # link the private DNS zones to the runner virtual network
@@ -53,9 +58,14 @@ resource "azurerm_private_dns_zone_virtual_network_link" "storage" {
   for_each = azurerm_private_dns_zone.storage
 
   name                  = "${each.value.name}-to-${module.gh_runner_vnet.name}"
-  resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = each.value.name
+  resource_group_name   = azurerm_resource_group.this.name
   virtual_network_id    = module.gh_runner_vnet.resource_id
+  tags = merge({
+    Description = "Link to allow resolution of '${each.value.name}' in the network '${module.gh_runner_vnet.name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+  )
 }
 
 locals {
@@ -118,11 +128,10 @@ module "storage_pe_names" {
 resource "azurerm_private_endpoint" "storage" {
   for_each = local.storage_pe_configs
 
-  name                = "${module.storage_pe_names[each.value.account_key].private_endpoint.name_unique}-${each.value.subresource_name}"
   location            = azurerm_resource_group.this.location
+  name                = "${module.storage_pe_names[each.value.account_key].private_endpoint.name_unique}-${each.value.subresource_name}"
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
-
   tags = merge({
     Description = "PE for storage account '${each.value.account_name}' in resource group '${each.value.account_rg_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
     },
@@ -131,10 +140,10 @@ resource "azurerm_private_endpoint" "storage" {
   )
 
   private_service_connection {
+    is_manual_connection           = false
     name                           = "storagePrivateLink-${each.value.account_name}-${each.value.subresource_name}"
     private_connection_resource_id = each.value.account_resource_id
     subresource_names              = [each.value.subresource_name]
-    is_manual_connection           = false
   }
 
   private_dns_zone_group {

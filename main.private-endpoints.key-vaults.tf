@@ -21,15 +21,25 @@ resource "azurerm_private_dns_zone" "key_vault" {
 
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = azurerm_resource_group.this.name
+  tags = merge({
+    Description = "Private DNS zone for Azure Key Vault private endpoint connections in the network '${module.gh_runner_vnet.name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+  )
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "key_vault" {
   count = local.need_to_create_kv_pe ? 1 : 0
 
   name                  = "${module.gh_runner_vnet.name}-to-key-vault"
-  resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.key_vault[0].name
+  resource_group_name   = azurerm_resource_group.this.name
   virtual_network_id    = module.gh_runner_vnet.resource_id
+  tags = merge({
+    Description = "Link to allow resolution of '${azurerm_private_dns_zone.key_vault[0].name}' in the network '${module.gh_runner_vnet.name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+  )
 }
 
 # create name for key vault private endpoint
@@ -45,11 +55,10 @@ module "kv_pe_names" {
 resource "azurerm_private_endpoint" "key_vault" {
   for_each = local.kv_pe_config
 
-  name                = module.kv_pe_names[each.key].private_endpoint.name_unique
   location            = azurerm_resource_group.this.location
+  name                = module.kv_pe_names[each.key].private_endpoint.name_unique
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
-
   tags = merge({
     Description = "PE for Azure Key Vault '${each.value.kv_details.resource_name}' in resource group '${each.value.kv_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
     },
@@ -58,12 +67,11 @@ resource "azurerm_private_endpoint" "key_vault" {
   )
 
   private_service_connection {
+    is_manual_connection           = false
     name                           = "keyVaultPrivateLink-${each.value.kv_details.resource_name}"
     private_connection_resource_id = each.value.resource_id
     subresource_names              = ["vault"]
-    is_manual_connection           = false
   }
-
   private_dns_zone_group {
     name                 = "keyVaultPrivateDnsZoneGroup"
     private_dns_zone_ids = [azurerm_private_dns_zone.key_vault[0].id]

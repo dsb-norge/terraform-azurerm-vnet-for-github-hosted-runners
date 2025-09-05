@@ -19,15 +19,25 @@ resource "azurerm_private_dns_zone" "databricks" {
 
   name                = "privatelink.azuredatabricks.net"
   resource_group_name = azurerm_resource_group.this.name
+  tags = merge({
+    Description = "Private DNS zone for Azure Databricks private endpoint connections in the network '${module.gh_runner_vnet.name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+  )
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "databricks" {
   count = local.need_to_create_dbx_pe ? 1 : 0
 
   name                  = "${module.gh_runner_vnet.name}-to-databricks"
-  resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.databricks[0].name
+  resource_group_name   = azurerm_resource_group.this.name
   virtual_network_id    = module.gh_runner_vnet.resource_id
+  tags = merge({
+    Description = "Link to allow resolution of '${azurerm_private_dns_zone.databricks[0].name}' in the network '${module.gh_runner_vnet.name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
+    },
+    var.tags,
+  )
 }
 
 # create name for databricks private endpoint
@@ -43,11 +53,10 @@ module "dbx_pe_names" {
 resource "azurerm_private_endpoint" "databricks" {
   for_each = local.dbx_pe_config
 
-  name                = module.dbx_pe_names[each.key].private_endpoint.name_unique
   location            = azurerm_resource_group.this.location
+  name                = module.dbx_pe_names[each.key].private_endpoint.name_unique
   resource_group_name = azurerm_resource_group.this.name
   subnet_id           = module.gh_runner_vnet.subnets.pe_subnet.resource_id
-
   tags = merge({
     Description = "PE for Azure Databricks '${each.value.dbx_details.resource_name}' in resource group '${each.value.dbx_details.resource_group_name}'. Part of the '${var.system_name}' infrastructure for GitHub hosted Actions runners"
     },
@@ -56,10 +65,10 @@ resource "azurerm_private_endpoint" "databricks" {
   )
 
   private_service_connection {
+    is_manual_connection           = false
     name                           = "databricksPrivateLink-${each.value.dbx_details.resource_name}"
     private_connection_resource_id = each.value.resource_id
     subresource_names              = ["databricks_ui_api"]
-    is_manual_connection           = false
   }
 
   private_dns_zone_group {

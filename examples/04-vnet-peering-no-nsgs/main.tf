@@ -1,3 +1,5 @@
+# tflint-ignore-file: azurerm_resource_tag
+#
 provider "azurerm" {
   features {
     resource_group {
@@ -19,36 +21,36 @@ module "names" {
 
 # will be reused by both VNets
 resource "azurerm_resource_group" "example" {
-  name     = module.names["hub"].resource_group.name_unique
   location = "norwayeast" # same as default location for the module
+  name     = module.names["hub"].resource_group.name_unique
 }
 
 resource "azurerm_virtual_network" "hub" {
-  name                = module.names["hub"].virtual_network.name_unique
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
   address_space       = ["10.1.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  name                = module.names["hub"].virtual_network.name_unique
+  resource_group_name = azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "hub_default" {
+  address_prefixes     = ["10.1.0.0/24"]
   name                 = module.names["hub"].subnet.name_unique
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.hub.name
-  address_prefixes     = ["10.1.0.0/24"]
 }
 
 resource "azurerm_virtual_network" "other" {
-  name                = module.names["other"].virtual_network.name_unique
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
   address_space       = ["10.2.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  name                = module.names["other"].virtual_network.name_unique
+  resource_group_name = azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "other_default" {
+  address_prefixes     = ["10.2.0.0/24"]
   name                 = module.names["other"].subnet.name_unique
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.other.name
-  address_prefixes     = ["10.2.0.0/24"]
 }
 
 # GitHub runner VNet with the module's built-in NSGs disabled

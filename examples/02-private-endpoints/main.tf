@@ -1,3 +1,5 @@
+# tflint-ignore-file: azurerm_resource_tag
+#
 provider "azurerm" {
   features {
     key_vault {
@@ -22,10 +24,9 @@ module "names" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name = module.names["1"].resource_group.name_unique
-
   # non-standard location, passed to the module further down
   location = "northeurope"
+  name     = module.names["1"].resource_group.name_unique
 }
 
 data "azurerm_client_config" "current" {}
@@ -34,24 +35,24 @@ data "azurerm_client_config" "current" {}
 resource "azurerm_key_vault" "example" {
   for_each = module.names
 
-  name                       = each.value.key_vault.name_unique
   location                   = azurerm_resource_group.example.location
+  name                       = each.value.key_vault.name_unique
   resource_group_name        = azurerm_resource_group.example.name
-  tenant_id                  = data.azurerm_client_config.current.tenant_id
-  soft_delete_retention_days = 7 # shortest possible
-  purge_protection_enabled   = false
   sku_name                   = "standard"
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  purge_protection_enabled   = false
+  soft_delete_retention_days = 7 # shortest possible
 }
 
 # two storage accounts
 resource "azurerm_storage_account" "example" {
   for_each = module.names
 
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
+  location                 = azurerm_resource_group.example.location
   name                     = each.value.storage_account.name_unique
   resource_group_name      = azurerm_resource_group.example.name
-  location                 = azurerm_resource_group.example.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
 }
 
 # one vnet with private endpoints for key vaults and storage accounts
