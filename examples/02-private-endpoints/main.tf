@@ -13,6 +13,8 @@ provider "azurerm" {
   }
 }
 
+provider "random" {}
+
 # create two sets of unique names
 module "names" {
   source  = "Azure/naming/azurerm"
@@ -53,6 +55,29 @@ resource "azurerm_storage_account" "example" {
   location                 = azurerm_resource_group.example.location
   name                     = each.value.storage_account.name_unique
   resource_group_name      = azurerm_resource_group.example.name
+}
+
+# random password for sql servers
+ephemeral "random_password" "password" {
+  length           = 32
+  min_lower        = 1
+  min_upper        = 1
+  min_numeric      = 1
+  min_special      = 1
+  override_special = "!$#%"
+}
+
+# two sql servers
+resource "azurerm_mssql_server" "example" {
+  for_each = module.names
+
+  location                                = azurerm_resource_group.example.location
+  name                                    = each.value.mssql_server.name_unique
+  resource_group_name                     = azurerm_resource_group.example.name
+  version                                 = "12.0"
+  administrator_login                     = "administrator_login"
+  administrator_login_password_wo         = ephemeral.random_password.password.result
+  administrator_login_password_wo_version = "1"
 }
 
 # one vnet with private endpoints for key vaults and storage accounts
@@ -108,6 +133,20 @@ module "gh_vnet" {
       resource_id = azurerm_databricks_workspace.example.id
     }
   }
+
+  # sql server private endpoints
+  sql_server_private_endpoints = {
+    sql1 = {
+      resource_id = azurerm_mssql_server.example["1"].id
+
+      # custom tags are supported for all private endpoint resources
+      tags = {
+        Description = "This is sql server 1"
+      }
+    }
+    sql2 = {
+      resource_id = azurerm_mssql_server.example["2"].id
+  } }
 
   # resource tags can be provided
   tags = {

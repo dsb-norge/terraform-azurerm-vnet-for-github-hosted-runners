@@ -185,6 +185,25 @@ run "verify_databricks_private_endpoints_tags_value_too_long" {
   ]
 }
 
+run "verify_sql_server_private_endpoints_tags_value_too_long" {
+  command = plan
+
+  variables {
+    sql_server_private_endpoints = {
+      "test-sql" = {
+        resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Sql/servers/test-sql"
+        tags = {
+          "key" = "This is a very long value that is intentionally made to exceed the maximum allowed length of 250 characters for the tags variable. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ExtraTextToReach260Chars1234567890"
+        }
+      }
+    }
+  }
+
+  expect_failures = [
+    var.sql_server_private_endpoints,
+  ]
+}
+
 run "verify_network_specs_tags_value_too_long" {
   command = plan
 
@@ -233,6 +252,23 @@ run "verify_databricks_resource_id_validation" {
 
   expect_failures = [
     var.databricks_private_endpoints,
+  ]
+}
+
+# Test sql server private endpoints validation
+run "verify_sql_server_resource_id_validation" {
+  command = plan
+
+  variables {
+    sql_server_private_endpoints = {
+      "test-sql" = {
+        resource_id = "invalid-resource-id"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.sql_server_private_endpoints,
   ]
 }
 
