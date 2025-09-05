@@ -270,6 +270,38 @@ variable "nsg_for_runner_subnet" {
   }
 }
 
+variable "sql_server_private_endpoints" {
+  description = <<-DESCRIPTION
+    Map of SQL servers to create private endpoints for.
+
+    Private endpoints will be created for the SQL servers in the GitHub hosted runner virtual network.
+    Privatlink private DNS zone for SQL servers will also be created and linked to the GitHub hosted runner virtual network.
+
+    DESCRIPTION
+  type = map(object({
+    resource_id = string
+    tags        = optional(map(string), {})
+  }))
+  default = {}
+
+  validation {
+    error_message = "One or more SQL server resource IDs in the input 'sql_server_private_endpoints' are not valid Azure resource IDs."
+    condition = alltrue([
+      for sql_name, sql_conf in var.sql_server_private_endpoints :
+      can(provider::azurerm::parse_resource_id(sql_conf.resource_id))
+    ])
+  }
+
+  validation {
+    error_message = "One or more tags in 'sql_server_private_endpoints' exceed 250 characters."
+    condition = alltrue([
+      for sql_name, sql_conf in var.sql_server_private_endpoints :
+      alltrue([
+        for k, v in sql_conf.tags : length(v) <= 250
+    ])])
+  }
+}
+
 variable "storage_account_private_endpoints" {
   description = <<-DESCRIPTION
     Map of storage accounts to create private endpoints for.
