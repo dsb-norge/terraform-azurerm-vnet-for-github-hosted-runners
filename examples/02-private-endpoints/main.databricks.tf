@@ -1,3 +1,5 @@
+# tflint-ignore-file: azurerm_resource_tag
+#
 # Databricks workspace.
 # Below is the minimal required infrastructure to create a Databricks workspace that will support Private Endpoints.
 locals {
@@ -5,8 +7,8 @@ locals {
 }
 
 resource "azurerm_resource_group" "dbx_example" {
-  name     = "rg-github-network-module-test-dbx" # Need known name since will be used later in "cleanup helper" script.
   location = local.databricks_location
+  name     = "rg-github-network-module-test-dbx" # Need known name since will be used later in "cleanup helper" script.
 }
 
 module "dbx_vnet" {
@@ -57,22 +59,22 @@ module "dbx_vnet" {
 }
 
 resource "azurerm_network_security_group" "dbx_nsg" {
-  name                = module.names["1"].network_security_group.name_unique
   location            = local.databricks_location
+  name                = module.names["1"].network_security_group.name_unique
   resource_group_name = azurerm_resource_group.dbx_example.name
 }
 
 resource "azurerm_databricks_workspace" "example" {
-  name                = module.names["1"].databricks_workspace.name_unique
   location            = local.databricks_location
+  name                = module.names["1"].databricks_workspace.name_unique
   resource_group_name = azurerm_resource_group.dbx_example.name
   sku                 = "premium"
 
   custom_parameters {
-    virtual_network_id                                   = module.dbx_vnet.resource_id
-    public_subnet_name                                   = module.dbx_vnet.subnets["public"].name
     private_subnet_name                                  = module.dbx_vnet.subnets["private"].name
-    public_subnet_network_security_group_association_id  = module.dbx_vnet.subnets["public"].resource_id
     private_subnet_network_security_group_association_id = module.dbx_vnet.subnets["private"].resource_id
+    public_subnet_name                                   = module.dbx_vnet.subnets["public"].name
+    public_subnet_network_security_group_association_id  = module.dbx_vnet.subnets["public"].resource_id
+    virtual_network_id                                   = module.dbx_vnet.resource_id
   }
 }
