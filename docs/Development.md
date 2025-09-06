@@ -55,7 +55,7 @@ It is, however, possible to run ```terraform-docs``` locally to check documentat
 
 ```shell
 # go1.17+
-go install github.com/terraform-docs/terraform-docs@v0.19.0
+go install github.com/terraform-docs/terraform-docs@v0.20.0
 export PATH=$PATH:$(go env GOPATH)/bin
 
 # root

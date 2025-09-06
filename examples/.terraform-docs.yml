@@ -3,7 +3,7 @@
 ### Update README.md of example/01-basic
 # terraform-docs ./examples/01-basic --config ./examples/terraform-docs.yml
 
-formatter: "markdown document" # this is required
+formatter: "markdown table" # this is required
 
 version: "~> 0.19"
 
