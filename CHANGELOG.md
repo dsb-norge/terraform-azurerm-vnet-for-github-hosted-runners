@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.0.0...v2.1.0) (2025-09-08)
+
+
+### Features
+
+* support creating private endpoints for azure sql server ([6c417d4](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/6c417d404ae1289cad3b963465121823e2bd3fac))
+
 ## [2.0.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v1.1.1...v2.0.0) (2025-09-04)
 
 
