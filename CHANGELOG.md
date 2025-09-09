@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.1.0...v2.1.1) (2025-09-09)
+
+
+### Bug Fixes
+
+* extend built-in nsg rules for sql private endpoints ([6814b44](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/6814b443715e039884d50792c0044dee1b74154a))
+
 ## [2.1.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.0.0...v2.1.0) (2025-09-08)
 
 
