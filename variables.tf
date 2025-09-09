@@ -277,6 +277,11 @@ variable "sql_server_private_endpoints" {
     Private endpoints will be created for the SQL servers in the GitHub hosted runner virtual network.
     Privatlink private DNS zone for SQL servers will also be created and linked to the GitHub hosted runner virtual network.
 
+    NSG rules will be extended to allow traffic for Azure SQL servers configured with 'redirect' connection policy.
+      ref. https://learn.microsoft.com/en-us/azure/azure-sql/database/private-endpoint-overview?view=azuresql#use-redirect-connection-policy-with-private-endpoints
+
+    NOTE: The NSG rules are hardcoded to Sql service tags in Norwegian regions. If you need private endpoint(s) to SQL servers in other regions, override the built-in NSG rules with var.nsg_for_runner_subnet.
+
     DESCRIPTION
   type = map(object({
     resource_id = string
