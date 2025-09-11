@@ -43,7 +43,7 @@ run "verify_network_specs_address_space_format" {
   ]
 }
 
-run "varify_network_specs_allowed_without_tags" {
+run "verify_network_specs_allowed_without_tags" {
   command = plan
 
   variables {
@@ -357,6 +357,218 @@ run "verify_nsg_for_private_endpoint_subnet_validation" {
   expect_failures = [
     var.nsg_for_private_endpoint_subnet,
   ]
+}
+
+# Test additional NSG rules for runner subnet merge behavior
+run "verify_additional_runner_nsg_rules" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_runner_subnet = {
+      "AllowCustomOutboundService" = {
+        access                     = "Allow"
+        description                = "Allow outbound to custom service"
+        priority                   = 1300
+        protocol                   = "Tcp"
+        direction                  = "Outbound"
+        source_address_prefix      = "*"
+        source_port_range          = "*"
+        destination_address_prefix = "10.10.10.10"
+        destination_port_range     = "443"
+      }
+    }
+  }
+}
+
+# Test additional NSG rules for private endpoint subnet merge behavior
+run "verify_additional_pe_nsg_rules" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_private_endpoint_subnet = {
+      "AllowCustomInboundFromRunner" = {
+        access                     = "Allow"
+        description                = "Allow inbound custom port from runners"
+        priority                   = 1300
+        protocol                   = "Tcp"
+        direction                  = "Inbound"
+        source_address_prefixes    = ["10.0.0.0/26"]
+        source_port_range          = "*"
+        destination_address_prefix = "*"
+        destination_port_range     = "8080"
+      }
+    }
+  }
+}
+
+# Test validation uniqueness for additional runner NSG rules priorities
+run "verify_additional_runner_nsg_rules_priority_uniqueness" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_runner_subnet = {
+      "RuleA" = {
+        access                     = "Allow"
+        description                = "A"
+        priority                   = 1500
+        protocol                   = "Tcp"
+        direction                  = "Outbound"
+        source_address_prefix      = "*"
+        source_port_range          = "*"
+        destination_address_prefix = "10.1.1.1"
+        destination_port_range     = "443"
+      }
+      "RuleB" = {
+        access                     = "Allow"
+        description                = "B"
+        priority                   = 1500 # duplicate
+        protocol                   = "Tcp"
+        direction                  = "Outbound"
+        source_address_prefix      = "*"
+        source_port_range          = "*"
+        destination_address_prefix = "10.1.1.2"
+        destination_port_range     = "443"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.additional_nsg_rules_for_runner_subnet,
+  ]
+}
+
+# Test validation uniqueness for additional private endpoint NSG rules priorities
+run "verify_additional_pe_nsg_rules_priority_uniqueness" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_private_endpoint_subnet = {
+      "RuleA" = {
+        access                     = "Allow"
+        description                = "A"
+        priority                   = 1600
+        protocol                   = "Tcp"
+        direction                  = "Inbound"
+        source_address_prefix      = "*"
+        source_port_range          = "*"
+        destination_address_prefix = "*"
+        destination_port_range     = "443"
+      }
+      "RuleB" = {
+        access                     = "Allow"
+        description                = "B"
+        priority                   = 1600 # duplicate
+        protocol                   = "Tcp"
+        direction                  = "Inbound"
+        source_address_prefix      = "*"
+        source_port_range          = "*"
+        destination_address_prefix = "*"
+        destination_port_range     = "443"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.additional_nsg_rules_for_private_endpoint_subnet,
+  ]
+}
+
+# NSG additional rules priority collision tests (runner subnet)
+# Negative test: collision with built-in runner rule priority (1000) without override name
+run "verify_runner_additional_nsg_priority_collision_without_override" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_runner_subnet = {
+      "CustomRunnerRule" = {
+        access                     = "Allow"
+        description                = "Custom rule colliding with built-in priority 1000"
+        priority                   = 1000 # collides with AllowPrivateEndpointOutbound (built-in) by priority only
+        protocol                   = "Tcp"
+        direction                  = "Outbound"
+        source_address_prefix      = "*"
+        source_port_range          = "*"
+        destination_address_prefix = "10.50.0.10"
+        destination_port_range     = "443"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.additional_nsg_rules_for_runner_subnet,
+  ]
+}
+
+# NSG additional rules priority collision tests (runner subnet)
+# Positive test: overriding built-in runner rule name allows using a colliding priority (or any priority)
+run "verify_runner_additional_nsg_priority_override_allowed" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_runner_subnet = {
+      # Override existing built-in rule "AllowPrivateEndpointOutbound" with new attributes & different priority
+      "AllowPrivateEndpointOutbound" = {
+        access                       = "Allow"
+        description                  = "Override built-in rule with different priority"
+        priority                     = 1015 # different from built-in 1000, but collision check skipped due to name override
+        protocol                     = "Tcp"
+        direction                    = "Outbound"
+        source_address_prefix        = "*"
+        source_port_range            = "*"
+        destination_address_prefixes = ["10.60.0.0/26"]
+        destination_port_range       = "443"
+      }
+    }
+  }
+}
+
+# NSG additional rules priority collision tests (private endpoint subnet)
+# Negative test: collision with built-in private endpoint rule priority (1000) without override
+run "verify_pe_additional_nsg_priority_collision_without_override" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_private_endpoint_subnet = {
+      "CustomPERule" = {
+        access                     = "Allow"
+        description                = "Custom PE rule colliding with built-in priority 1000"
+        priority                   = 1000 # collides with AllowRunnerInbound
+        protocol                   = "Tcp"
+        direction                  = "Inbound"
+        source_address_prefixes    = ["10.70.0.0/26"]
+        source_port_range          = "*"
+        destination_address_prefix = "*"
+        destination_port_range     = "8080"
+      }
+    }
+  }
+
+  expect_failures = [
+    var.additional_nsg_rules_for_private_endpoint_subnet,
+  ]
+}
+
+# NSG additional rules priority collision tests (private endpoint subnet)
+# Positive test: overriding built-in private endpoint rule name allows any priority
+run "verify_pe_additional_nsg_priority_override_allowed" {
+  command = plan
+
+  variables {
+    additional_nsg_rules_for_private_endpoint_subnet = {
+      # Override existing built-in rule name "AllowRunnerInbound"
+      "AllowRunnerInbound" = {
+        access                     = "Allow"
+        description                = "Override built-in PE rule with new priority"
+        priority                   = 1012 # different from built-in 1000
+        protocol                   = "Tcp"
+        direction                  = "Inbound"
+        source_address_prefixes    = ["10.80.0.0/26"]
+        source_port_range          = "*"
+        destination_address_prefix = "*"
+        destination_port_range     = "8443"
+      }
+    }
+  }
 }
 
 # Note:
