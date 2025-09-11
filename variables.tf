@@ -71,6 +71,174 @@ variable "network_specs" {
   }
 }
 
+variable "additional_nsg_rules_for_private_endpoint_subnet" {
+  description = <<-DESCRIPTION
+    Additional NSG rules to add to the built-in NSG for the private endpoint subnet.
+
+    The rules defined here will be added in addition to the built-in rules defined in this module.
+    If you use the same rule name as a built-in rule, your rule overrides the built-in definition.
+    DESCRIPTION
+  type = map(object({
+    access                       = string
+    description                  = string
+    priority                     = number
+    protocol                     = string
+    direction                    = string
+    source_address_prefix        = optional(string)
+    source_address_prefixes      = optional(set(string))
+    source_port_range            = optional(string)
+    source_port_ranges           = optional(set(string))
+    destination_address_prefix   = optional(string)
+    destination_address_prefixes = optional(set(string))
+    destination_port_range       = optional(string)
+    destination_port_ranges      = optional(set(string))
+  }))
+  default  = {}
+  nullable = false
+
+  validation {
+    error_message = "One or more NSG rule priorities in 'additional_nsg_rules_for_private_endpoint_subnet' are not unique."
+    condition     = length(keys(var.additional_nsg_rules_for_private_endpoint_subnet)) == length(distinct([for r in values(var.additional_nsg_rules_for_private_endpoint_subnet) : r.priority]))
+  }
+
+  validation {
+    error_message = "One or more NSG rule priorities in 'additional_nsg_rules_for_private_endpoint_subnet' are outside the allowed range of 100-4096."
+    condition     = alltrue([for r in values(var.additional_nsg_rules_for_private_endpoint_subnet) : r.priority >= 100 && r.priority <= 4096])
+  }
+
+  validation {
+    # Disallow priority collisions with built-in rules unless user overrides by using built-in rule name.
+    condition = alltrue([
+      for rule_name, rule in var.additional_nsg_rules_for_private_endpoint_subnet : (
+        # If user overrides a built-in rule (same name), allow any priority.
+        contains(keys(local.nsg_rules_private_endpoint_subnet_builtin), rule_name)
+        ) || (
+        # Check for priority collisions with built-in rules.
+        !contains(
+          values(local.nsg_rules_private_endpoint_subnet_builtin)[*].priority,
+          rule.priority
+      ))
+    ])
+    error_message = "One or more NSG rule priorities in 'additional_nsg_rules_for_private_endpoint_subnet' conflict with built-in rules. Change the priority or override the built-in rule by using its name."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_private_endpoint_subnet :
+      (r.source_address_prefix != null) != (r.source_address_prefixes != null)
+    ])
+    error_message = "Each rule must set exactly one of source_address_prefix or source_address_prefixes in 'additional_nsg_rules_for_private_endpoint_subnet'."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_private_endpoint_subnet :
+      (r.source_port_range != null) != (r.source_port_ranges != null)
+    ])
+    error_message = "Each rule must set exactly one of source_port_range or source_port_ranges in 'additional_nsg_rules_for_private_endpoint_subnet'."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_private_endpoint_subnet :
+      (r.destination_address_prefix != null) != (r.destination_address_prefixes != null)
+    ])
+    error_message = "Each rule must set exactly one of destination_address_prefix or destination_address_prefixes in 'additional_nsg_rules_for_private_endpoint_subnet'."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_private_endpoint_subnet :
+      (r.destination_port_range != null) != (r.destination_port_ranges != null)
+    ])
+    error_message = "Each rule must set exactly one of destination_port_range or destination_port_ranges in 'additional_nsg_rules_for_private_endpoint_subnet'."
+  }
+}
+
+variable "additional_nsg_rules_for_runner_subnet" {
+  description = <<-DESCRIPTION
+    Additional NSG rules to add to the built-in NSG for the GitHub hosted runner subnet.
+
+    The rules defined here will be added in addition to the built-in rules defined in this module.
+    If you use the same rule name as a built-in rule, your rule overrides the built-in definition.
+    DESCRIPTION
+  type = map(object({
+    access                       = string
+    description                  = string
+    priority                     = number
+    protocol                     = string
+    direction                    = string
+    source_address_prefix        = optional(string)
+    source_address_prefixes      = optional(set(string))
+    source_port_range            = optional(string)
+    source_port_ranges           = optional(set(string))
+    destination_address_prefix   = optional(string)
+    destination_address_prefixes = optional(set(string))
+    destination_port_range       = optional(string)
+    destination_port_ranges      = optional(set(string))
+  }))
+  default  = {}
+  nullable = false
+
+  validation {
+    error_message = "One or more NSG rule priorities in 'additional_nsg_rules_for_runner_subnet' are not unique."
+    condition     = length(keys(var.additional_nsg_rules_for_runner_subnet)) == length(distinct([for r in values(var.additional_nsg_rules_for_runner_subnet) : r.priority]))
+  }
+
+  validation {
+    error_message = "One or more NSG rule priorities in 'additional_nsg_rules_for_runner_subnet' are outside the allowed range of 100-4096."
+    condition     = alltrue([for r in values(var.additional_nsg_rules_for_runner_subnet) : r.priority >= 100 && r.priority <= 4096])
+  }
+
+  validation {
+    # Disallow priority collisions with built-in rules unless user overrides by using built-in rule name.
+    condition = alltrue([
+      for rule_name, rule in var.additional_nsg_rules_for_runner_subnet : (
+        # If user overrides a built-in rule (same name), allow any priority.
+        contains(keys(local.nsg_rules_runner_subnet_builtin), rule_name)
+        ) || (
+        # Check for priority collisions with built-in rules.
+        !contains(
+          values(local.nsg_rules_runner_subnet_builtin)[*].priority,
+          rule.priority
+      ))
+    ])
+    error_message = "One or more NSG rule priorities in 'additional_nsg_rules_for_runner_subnet' conflict with built-in rules. Change the priority or override the built-in rule by using its name."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_runner_subnet :
+      (r.source_address_prefix != null) != (r.source_address_prefixes != null)
+    ])
+    error_message = "Each rule must set exactly one of source_address_prefix or source_address_prefixes in 'additional_nsg_rules_for_runner_subnet'."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_runner_subnet :
+      (r.source_port_range != null) != (r.source_port_ranges != null)
+    ])
+    error_message = "Each rule must set exactly one of source_port_range or source_port_ranges in 'additional_nsg_rules_for_runner_subnet'."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_runner_subnet :
+      (r.destination_address_prefix != null) != (r.destination_address_prefixes != null)
+    ])
+    error_message = "Each rule must set exactly one of destination_address_prefix or destination_address_prefixes in 'additional_nsg_rules_for_runner_subnet'."
+  }
+
+  validation {
+    condition = alltrue([
+      for r in var.additional_nsg_rules_for_runner_subnet :
+      (r.destination_port_range != null) != (r.destination_port_ranges != null)
+    ])
+    error_message = "Each rule must set exactly one of destination_port_range or destination_port_ranges in 'additional_nsg_rules_for_runner_subnet'."
+  }
+}
+
 variable "databricks_private_endpoints" {
   description = <<-DESCRIPTION
     Map of Databricks workspaces to create private endpoints for.
