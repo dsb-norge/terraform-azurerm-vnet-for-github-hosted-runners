@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.1.1...v2.2.0) (2025-09-11)
+
+
+### Features
+
+* allow passing in additional nsg rules ([ffeb14a](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/ffeb14a069f230e41dbbfc64f0e34413b65a7d8c))
+
 ## [2.1.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.1.0...v2.1.1) (2025-09-09)
 
 
