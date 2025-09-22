@@ -43,6 +43,21 @@ run "verify_network_specs_address_space_format" {
   ]
 }
 
+run "verify_network_specs_additional_pe_subnet_format" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space        = "10.0.0.0/24"
+      additional_pe_subnet = "invalid-cidr"
+    }
+  }
+
+  expect_failures = [
+    var.network_specs,
+  ]
+}
+
 run "verify_network_specs_allowed_without_tags" {
   command = plan
 
