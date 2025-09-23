@@ -48,8 +48,8 @@ run "verify_network_specs_additional_pe_subnet_format" {
 
   variables {
     network_specs = {
-      address_space        = "10.0.0.0/24"
-      additional_pe_subnet = "invalid-cidr"
+      address_space         = "10.0.0.0/24"
+      additional_pe_subnets = ["invalid-cidr"]
     }
   }
 
