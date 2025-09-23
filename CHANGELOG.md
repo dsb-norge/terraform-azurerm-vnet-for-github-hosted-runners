@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.2.0...v2.3.0) (2025-09-23)
+
+
+### Features
+
+* Additional PE subnet space support. ([#26](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/26)) ([1c909f5](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/1c909f55342762fe53c40196b390a6877b7b4f9b))
+
 ## [2.2.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.1.1...v2.2.0) (2025-09-11)
 
 
