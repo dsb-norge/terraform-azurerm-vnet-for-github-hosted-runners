@@ -11,9 +11,13 @@ The module performs the following actions:
 3. **Network Security Group (NSG) Management:** Configures Network Security Groups (NSGs) for both subnets to control network traffic.  The module provides options to:
     * Create and manage NSGs with default rules.
     * Disable default NSGs and use existing NSGs.
+    * Extend built-in NSG rules (for SQL PE).  
+    * Allow to add additional NSG rules.
 4. **Private Endpoint Support:** Optionally creates private endpoints for already existing Azure services, including:
     * Azure Key Vault
     * Azure Storage Account (blob, file, queue, table, web, dfs)
+    * Azure Databricks
+    * Azure MSSQL server
 
     The module also manages the creation and vnet linking of private DNS zones for these services.
 5. **NAT Gateway Integration:** By default deploys a NAT Gateway and Public IP to provide outbound internet access for the runners. This can be disabled if alternative outbound connectivity is provided.
