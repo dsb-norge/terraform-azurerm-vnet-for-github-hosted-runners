@@ -160,7 +160,7 @@ module "gh_runner_vnet" {
 
     pe_subnet = {
       name             = module.subnet_names["pe"].subnet.name_unique
-      address_prefixes = var.network_specs.additional_pe_subnet != null ? concat([var.network_specs.additional_pe_subnet], local.pe_subnet_address_prefixes) : local.pe_subnet_address_prefixes
+      address_prefixes = tolist(compact(concat(local.pe_subnet_address_prefixes, var.network_specs.additional_pe_subnet)))
 
       # support disabling NSGs and bringing your own
       network_security_group = (
