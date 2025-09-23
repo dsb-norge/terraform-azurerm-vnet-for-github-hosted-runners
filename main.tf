@@ -127,7 +127,7 @@ module "gh_runner_vnet" {
   name                = module.runner_name.virtual_network.name_unique
   location            = var.location
   resource_group_name = azurerm_resource_group.this.name
-  address_space       = var.network_specs.additional_pe_subnet != null ? [var.network_specs.address_space, var.network_specs.additional_pe_subnet] : [var.network_specs.address_space]
+  address_space       = toset(compact(concat([var.network_specs.address_space], var.network_specs.additional_pe_subnet)))
 
   tags = merge(var.tags, var.network_specs.tags, {
     Description = "Virtual network designed to host GitHub hosted Actions runners in the '${var.system_name}' infrastructure"
