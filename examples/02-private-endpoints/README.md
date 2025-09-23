@@ -8,6 +8,7 @@ Example of how to create private endpoints in the virtual network for both stora
 # tflint-ignore-file: azurerm_resource_tag
 #
 provider "azurerm" {
+
   features {
     key_vault {
       # to clean up properly after integration testing
@@ -94,7 +95,8 @@ module "gh_vnet" {
   # required inputs
   github_database_id = "123456789"
   network_specs = {
-    address_space = "10.0.0.0/24"
+    address_space         = "10.0.0.0/24"
+    additional_pe_subnets = ["10.0.3.0/25"]
     tags = {
       ExampleIPAMTag = "IPAM-reservation-ID"
     }
@@ -124,7 +126,6 @@ module "gh_vnet" {
     }
     sa2 = {
       resource_id = azurerm_storage_account.example["2"].id
-
       # all privatelink DNS zones will be created
       create_blob_pe  = true
       create_file_pe  = true
@@ -132,7 +133,8 @@ module "gh_vnet" {
       create_table_pe = true
       create_web_pe   = true
       create_dfs_pe   = true
-  } }
+    }
+  }
 
   # databricks private endpoints
   databricks_private_endpoints = {

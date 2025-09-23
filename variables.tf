@@ -47,18 +47,21 @@ variable "network_specs" {
     The address space will be divided to two subnets: one for runners and one for private endpoints.
     Which means: max runner concurrency = vnet_space / 2 - 5 (addresses that azure reserves for system)
     The tags will be added to the virtual network to support Azure IPAM provided address spaces.
+    If additional_pe_subnets are provided, they will be used as the second address space for the existing private endpoint subnet.
 
     Example:
       network_specs = {
         address_space = "10.0.0.1/25"
+        additional_pe_subnets = ["10.1.0.0/25"]
       }
       "/25" means 128 addresses total
       available addresses per subnet = 128 / 2 = 64
       max runner concurrency = 64 - 5 = 59
     DESCRIPTION
   type = object({
-    address_space = string
-    tags          = optional(map(string))
+    address_space         = string
+    additional_pe_subnets = optional(set(string))
+    tags                  = optional(map(string))
   })
   validation {
     error_message = "The address space provided in `network_address_space` is not a valid CIDR notation."
@@ -68,6 +71,16 @@ variable "network_specs" {
   validation {
     error_message = "One or more tags in 'network_specs.tags' exceed 250 characters: ${join(", ", [for k, v in var.network_specs.tags != null ? var.network_specs.tags : {} : k if length(v) > 250])}"
     condition     = var.network_specs.tags == null ? true : alltrue([for t in var.network_specs.tags : length(t) <= 250])
+  }
+
+  validation {
+    condition = (
+      var.network_specs.additional_pe_subnets == null ||
+      alltrue([
+        for cidr in var.network_specs.additional_pe_subnets : can(cidrnetmask(cidr))
+      ])
+    )
+    error_message = "If `additional_pe_subnets` are provided in 'network_specs', they must be valid CIDR notations"
   }
 }
 

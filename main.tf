@@ -127,7 +127,10 @@ module "gh_runner_vnet" {
   name                = module.runner_name.virtual_network.name_unique
   location            = var.location
   resource_group_name = azurerm_resource_group.this.name
-  address_space       = [var.network_specs.address_space]
+  address_space = compact(concat(
+    [var.network_specs.address_space],
+    var.network_specs.additional_pe_subnets != null ? tolist(var.network_specs.additional_pe_subnets) : []
+  ))
 
   tags = merge(var.tags, var.network_specs.tags, {
     Description = "Virtual network designed to host GitHub hosted Actions runners in the '${var.system_name}' infrastructure"
@@ -159,8 +162,11 @@ module "gh_runner_vnet" {
     ) }
 
     pe_subnet = {
-      name             = module.subnet_names["pe"].subnet.name_unique
-      address_prefixes = local.pe_subnet_address_prefixes
+      name = module.subnet_names["pe"].subnet.name_unique
+      address_prefixes = compact(concat(
+        local.pe_subnet_address_prefixes,
+        var.network_specs.additional_pe_subnets != null ? tolist(var.network_specs.additional_pe_subnets) : []
+      ))
 
       # support disabling NSGs and bringing your own
       network_security_group = (
