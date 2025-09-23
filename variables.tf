@@ -60,7 +60,7 @@ variable "network_specs" {
     DESCRIPTION
   type = object({
     address_space        = string
-    additional_pe_subnet = optional(string)
+    additional_pe_subnet = optional(set(string))
     tags                 = optional(map(string))
   })
   validation {
