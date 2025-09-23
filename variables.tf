@@ -74,8 +74,13 @@ variable "network_specs" {
   }
 
   validation {
+    condition = (
+      var.network_specs.additional_pe_subnet == null ||
+      alltrue([
+        for cidr in var.network_specs.additional_pe_subnet : can(cidrhost(cidr, 0))
+      ])
+    )
     error_message = "If `additional_pe_subnet` is provided in 'network_specs', it must be a valid CIDR notation"
-    condition     = var.network_specs.additional_pe_subnet == null ? true : can(cidrnetmask(var.network_specs.additional_pe_subnet))
   }
 }
 
