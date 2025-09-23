@@ -95,7 +95,7 @@ module "gh_vnet" {
   github_database_id = "123456789"
   network_specs = {
     address_space        = "10.0.0.0/24"
-    additional_pe_subnet = "10.1.0.0/25"
+    additional_pe_subnet = ["10.1.0.0/25"]
     tags = {
       ExampleIPAMTag = "IPAM-reservation-ID"
     }
