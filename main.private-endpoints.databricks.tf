@@ -43,7 +43,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "databricks" {
 # create name for databricks private endpoint
 module "dbx_pe_names" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   for_each = local.dbx_pe_config
 

@@ -13,18 +13,18 @@ resource "azurerm_resource_group" "dbx_example" {
 
 module "dbx_vnet" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.8.1"
+  version = "0.17.1"
 
-  location            = local.databricks_location
-  resource_group_name = azurerm_resource_group.dbx_example.name
-  address_space       = ["10.0.1.0/24"]
-  name                = module.names["1"].virtual_network.name_unique
+  location      = local.databricks_location
+  parent_id     = azurerm_resource_group.dbx_example.id
+  address_space = ["10.0.1.0/24"]
+  name          = module.names["1"].virtual_network.name_unique
 
   subnets = {
     public = {
       address_prefix = "10.0.1.0/25"
       name           = "dbx_public"
-      delegation = [{
+      delegations = [{
         name = "databricks"
         service_delegation = {
           name = "Microsoft.Databricks/workspaces"
@@ -41,7 +41,7 @@ module "dbx_vnet" {
     private = {
       address_prefix = "10.0.1.128/25"
       name           = "dbx_private"
-      delegation = [{
+      delegations = [{
         name = "databricks"
         service_delegation = {
           name = "Microsoft.Databricks/workspaces"

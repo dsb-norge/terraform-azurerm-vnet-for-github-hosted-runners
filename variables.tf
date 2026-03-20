@@ -322,6 +322,32 @@ variable "disable_nat_gateway" {
   nullable    = false
 }
 
+variable "dns_servers" {
+  description = <<-DESCRIPTION
+    List of custom DNS server IP addresses to configure for the virtual network.
+
+    When set, the virtual network will use these DNS servers instead of Azure-provided DNS.
+    This is typically used when an Azure Firewall DNS proxy is deployed in a hub virtual network
+    to enable conditional forwarding and centralized DNS resolution for private endpoints.
+
+    Default is empty, which means Azure-provided DNS is used.
+
+    Example:
+
+    ```
+    dns_servers = ["10.0.0.4"]
+    ```
+    DESCRIPTION
+  type        = list(string)
+  default     = []
+  nullable    = false
+
+  validation {
+    condition     = alltrue([for ip in var.dns_servers : can(cidrhost("${ip}/32", 0))])
+    error_message = "All entries in 'dns_servers' must be valid IPv4 addresses."
+  }
+}
+
 variable "key_vault_private_endpoints" {
   description = <<-DESCRIPTION
     Map of key vaults to create private endpoints for.
@@ -550,6 +576,53 @@ variable "storage_account_private_endpoints" {
         for k, v in st_conf.tags : length(v) <= 250
       ])
     ])
+  }
+}
+
+variable "storage_private_dns_zone_ids" {
+  description = <<-DESCRIPTION
+    Map of existing private DNS zone resource IDs to use for storage account private endpoints,
+    instead of having this module create and manage them.
+
+    This is typically used when private DNS zones are managed centrally in a hub virtual network.
+
+    Keys must be storage sub-resource names: blob, file, queue, table, web, dfs.
+    Values must be the full resource ID of the existing private DNS zone.
+
+    When a BYO DNS zone is provided for a sub-resource type, the module will NOT create:
+      - the private DNS zone for that sub-resource type
+      - the virtual network link from this VNet to the zone
+
+    This is by design: it is assumed that DNS resolution is handled centrally,
+    e.g. via an Azure Firewall DNS proxy in a hub network where the zone is already linked.
+
+    Example:
+
+    ```
+    storage_private_dns_zone_ids = {
+      blob = "/subscriptions/.../resourceGroups/.../providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+      file = "/subscriptions/.../resourceGroups/.../providers/Microsoft.Network/privateDnsZones/privatelink.file.core.windows.net"
+    }
+    ```
+    DESCRIPTION
+  type        = map(string)
+  default     = {}
+  nullable    = false
+
+  validation {
+    condition = alltrue([
+      for key, _ in var.storage_private_dns_zone_ids :
+      contains(["blob", "file", "queue", "table", "web", "dfs"], key)
+    ])
+    error_message = "Keys in 'storage_private_dns_zone_ids' must be one of: blob, file, queue, table, web, dfs."
+  }
+
+  validation {
+    condition = alltrue([
+      for _, id in var.storage_private_dns_zone_ids :
+      can(regex("^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/.+$", id))
+    ])
+    error_message = "All values in 'storage_private_dns_zone_ids' must be valid Azure private DNS zone resource IDs."
   }
 }
 

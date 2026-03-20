@@ -51,10 +51,31 @@ locals {
     }
   }
 
+  # when custom DNS servers are configured (e.g. Azure Firewall DNS proxy), allow outbound DNS traffic
+  nsg_rules_runner_subnet_conditional_for_dns_proxy = {
+    "AllowDnsProxyOutbound" = {
+      access                       = "Allow"
+      description                  = "Allow outbound DNS traffic from GitHub hosted runners to custom DNS servers (e.g. Azure Firewall DNS proxy)"
+      priority                     = 1150
+      protocol                     = "*"
+      direction                    = "Outbound"
+      source_address_prefix        = "*"
+      source_address_prefixes      = null
+      source_port_range            = "*"
+      source_port_ranges           = null
+      destination_address_prefix   = null
+      destination_address_prefixes = toset(var.dns_servers)
+      destination_port_range       = "53"
+      destination_port_ranges      = null
+    }
+  }
+
   # built-in default rules for the runner subnet
   nsg_rules_runner_subnet_builtin = merge(
     # when no sql pe was configured, no extra rules needed
     local.need_to_create_sql_pe ? local.nsg_rules_runner_subnet_conditional_for_sql_private_endpoint : null,
+    # when custom DNS servers are configured, allow outbound DNS
+    length(var.dns_servers) > 0 ? local.nsg_rules_runner_subnet_conditional_for_dns_proxy : null,
     {
       ################
       # Outbound rules

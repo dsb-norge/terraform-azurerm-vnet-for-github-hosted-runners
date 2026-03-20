@@ -38,11 +38,19 @@ locals {
     anytrue(values(var.storage_account_private_endpoints)[*].create_web_pe) ? local.storage_subresource_mapping.web.dns_zone_name : null,
     anytrue(values(var.storage_account_private_endpoints)[*].create_dfs_pe) ? local.storage_subresource_mapping.dfs.dns_zone_name : null,
   ])
+
+  # DNS zones that need to be created by this module (exclude BYO zones)
+  # When a BYO DNS zone is provided, we skip creation and VNet linking,
+  # because centralized DNS (e.g. Azure Firewall DNS proxy in hub) handles resolution.
+  storage_acc_dns_zones_to_create = [
+    for zone in local.storage_acc_dns_zones :
+    zone if !contains(keys(var.storage_private_dns_zone_ids), zone == "z1.web" ? "web" : zone)
+  ]
 }
 
-# create the required private DNS zones for storage accounts
+# create the required private DNS zones for storage accounts (only those not provided as BYO)
 resource "azurerm_private_dns_zone" "storage" {
-  for_each = toset(local.storage_acc_dns_zones)
+  for_each = toset(local.storage_acc_dns_zones_to_create)
 
   name                = "privatelink.${each.value}.core.windows.net"
   resource_group_name = azurerm_resource_group.this.name
@@ -53,7 +61,8 @@ resource "azurerm_private_dns_zone" "storage" {
   )
 }
 
-# link the private DNS zones to the runner virtual network
+# link the private DNS zones to the runner virtual network (only for module-managed zones, not BYO)
+# BYO zones are assumed to be linked in the hub network where centralized DNS resolution handles them.
 resource "azurerm_private_dns_zone_virtual_network_link" "storage" {
   for_each = azurerm_private_dns_zone.storage
 
@@ -107,8 +116,13 @@ locals {
         account_rg_name = local.storage_acc_details[acc_key].resource_group_name
 
         # go through the mapping to get the correct DNS resource id
-        private_dns_zone_id = azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id
-        tags                = acc_conf.tags != null ? acc_conf.tags : {}
+        # use BYO zone if provided, otherwise use the module-created zone
+        private_dns_zone_id = (
+          contains(keys(var.storage_private_dns_zone_ids), subresource_name)
+          ? var.storage_private_dns_zone_ids[subresource_name]
+          : azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id
+        )
+        tags = acc_conf.tags != null ? acc_conf.tags : {}
       }
     }
   ]...)
@@ -117,7 +131,7 @@ locals {
 # private endpoint unique names per storage account
 module "storage_pe_names" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   for_each = var.storage_account_private_endpoints
 

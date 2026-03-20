@@ -19,7 +19,7 @@ provider "random" {}
 # create two sets of unique names
 module "names" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   for_each = toset(["1", "2"])
 
