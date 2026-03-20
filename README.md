@@ -4,14 +4,15 @@ This module provisions an Azure Virtual Network (VNet) designed to host GitHub h
 
 The module performs the following actions:
 
-1. **Virtual Network Creation:** Deploys an Azure Virtual Network with a specified address space. It support network space provided by Azure IPAM (mandatory Virtual Network tagging for reservation association)
+1. **Virtual Network Creation:** Deploys an Azure Virtual Network with a specified address space. It support network space provided by Azure IPAM (mandatory Virtual Network tagging for reservation association). Supports configuring custom DNS servers (e.g. Azure Firewall DNS proxy in a hub network) for centralized DNS resolution.
 2. **Subnet Configuration:** Creates two subnets within the VNet:
     * A dedicated subnet for GitHub Actions runners, configured with the `GitHub.Network/networkSettings` delegation, allowing GitHub to manage network interfaces within the subnet.
     * A subnet for private endpoints, facilitating secure access to Azure services.
 3. **Network Security Group (NSG) Management:** Configures Network Security Groups (NSGs) for both subnets to control network traffic.  The module provides options to:
     * Create and manage NSGs with default rules.
     * Disable default NSGs and use existing NSGs.
-    * Extend built-in NSG rules (for SQL PE).  
+    * Extend built-in NSG rules (for SQL PE, DNS proxy).  
+    * Automatically add outbound DNS (port 53) NSG rules when custom DNS servers are configured.
     * Allow to add additional NSG rules.
 4. **Private Endpoint Support:** Optionally creates private endpoints for already existing Azure services, including:
     * Azure Key Vault
@@ -19,7 +20,7 @@ The module performs the following actions:
     * Azure Databricks
     * Azure MSSQL server
 
-    The module also manages the creation and vnet linking of private DNS zones for these services.
+    The module also manages the creation and vnet linking of private DNS zones for these services. Alternatively, existing (BYO) private DNS zones can be provided for storage accounts, allowing centralized DNS management in a hub network.
 5. **NAT Gateway Integration:** By default deploys a NAT Gateway and Public IP to provide outbound internet access for the runners. This can be disabled if alternative outbound connectivity is provided.
 6. **GitHub Network Settings Resource:** Creates an `azapi_resource` of type `GitHub.Network/networkSettings` to associate the created subnet with a GitHub organization or enterprise, enabling _Azure private networking for GitHub-hosted runners_.
 7. **Network Peering:** Supports peering with other Azure Virtual Networks, allowing the runners to access resources in other networks.
