@@ -127,6 +127,8 @@ Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-gith
 | <a name="output_github_network_settings_name"></a> [github\_network\_settings\_name](#output\_github\_network\_settings\_name) | Name of the Github Network settings resource, `GitHub.Network/networkSettings`. |
 | <a name="output_outbound_ip_address"></a> [outbound\_ip\_address](#output\_outbound\_ip\_address) | The outbound NAT public IP address used by runners to access the internet.<br/><br/>If `disable_nat_gateway` is set to true, this will be null. |
 | <a name="output_resource_group_id"></a> [resource\_group\_id](#output\_resource\_group\_id) | The resource ID of the resource group containing the resources for the Azure Virtual Network (VNet) designed to host GitHub hosted Actions runners |
+| <a name="output_runner_nsg_resource_id"></a> [runner\_nsg\_resource\_id](#output\_runner\_nsg\_resource\_id) | The resource ID of the runner subnet network security group, or null if no NSG was created by this module. |
+| <a name="output_storage_private_dns_zone_ids"></a> [storage\_private\_dns\_zone\_ids](#output\_storage\_private\_dns\_zone\_ids) | Map of storage sub-resource type to the private DNS zone resource ID used (module-created or BYO). |
 | <a name="output_virtual_network_resource_id"></a> [virtual\_network\_resource\_id](#output\_virtual\_network\_resource\_id) | The resource ID of the virtual network (VNet) designed to host GitHub hosted Actions runners |
 
 ## Modules
