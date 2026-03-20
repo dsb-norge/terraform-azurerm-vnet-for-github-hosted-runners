@@ -32,6 +32,27 @@ output "resource_group_id" {
   value       = azurerm_resource_group.this.id
 }
 
+output "runner_nsg_resource_id" {
+  description = "The resource ID of the runner subnet network security group, or null if no NSG was created by this module."
+  value       = local.should_create_nsg_for_runner_subnet ? azurerm_network_security_group.this["runner"].id : null
+}
+
+output "storage_private_dns_zone_ids" {
+  description = "Map of storage sub-resource type to the private DNS zone resource ID used (module-created or BYO)."
+  value = {
+    for subresource_name in keys(local.storage_subresource_mapping) :
+    subresource_name => (
+      contains(keys(var.storage_private_dns_zone_ids), subresource_name)
+      ? var.storage_private_dns_zone_ids[subresource_name]
+      : try(azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id, null)
+    )
+    if(
+      contains(keys(var.storage_private_dns_zone_ids), subresource_name) ||
+      can(azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id)
+    )
+  }
+}
+
 output "virtual_network_resource_id" {
   description = "The resource ID of the virtual network (VNet) designed to host GitHub hosted Actions runners"
   value       = module.gh_runner_vnet.resource_id
