@@ -621,14 +621,8 @@ run "verify_dns_servers_invalid_ip" {
   ]
 }
 
-# Positive test: dns_servers adds DNS proxy NSG rule on runner subnet
-run "verify_dns_servers_adds_nsg_rule" {
-  command = plan
-
-  variables {
-    dns_servers = ["10.0.0.4"]
-  }
-}
+# Note: verifying DNS proxy NSG rule creation and attributes is done in
+# integration test tests/integration-test-06-dns-servers.tftest.hcl
 
 # ################################################
 # storage_private_dns_zone_ids variable validation tests
@@ -696,6 +690,9 @@ run "verify_storage_private_dns_zone_ids_multiple_valid" {
     }
   }
 }
+
+# Note: verifying BYO DNS zone resource creation/skipping is done in
+# integration test tests/integration-test-06-dns-servers.tftest.hcl
 
 # Note:
 #   since we are using avm modules we are not able to test using mock providers.
