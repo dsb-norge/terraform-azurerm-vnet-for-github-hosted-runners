@@ -24,13 +24,17 @@ rule "terraform_required_version" { enabled = false }   # Disallow terraform dec
 # plugin: TFLint Ruleset for terraform-provider-azurerm - https://github.com/terraform-linters/tflint-ruleset-azurerm/tree/master
 plugin "azurerm" {
   enabled = true
-  version = "0.29.0"
+  version = "0.31.1"
   source  = "github.com/terraform-linters/tflint-ruleset-azurerm"
 }
 
 # overrides for: TFLint Ruleset for terraform-provider-azurerm - https://github.com/terraform-linters/tflint-ruleset-azurerm/tree/master/docs
 # none. all rules enabled by default
-
+rule "azurerm_resources_missing_prevent_destroy" {
+  enabled = false # We don't need prevent destroy since testing should destroy everything after deployed.
+  resources = [] # (Optional) Override default resources list
+  exclude = []
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # plugin: TFLint Ruleset for terraform-provider-basic-ext - https://github.com/Azure/tflint-ruleset-basic-ext/tree/master

@@ -12,7 +12,7 @@ provider "azurerm" {
 # unique names to avoid name collisions during integration testing
 module "names" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   suffix = ["example"]
 }

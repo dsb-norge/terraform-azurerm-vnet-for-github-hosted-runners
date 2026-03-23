@@ -586,6 +586,114 @@ run "verify_pe_additional_nsg_priority_override_allowed" {
   }
 }
 
+# ################################################
+# dns_servers variable validation tests
+# ################################################
+
+# Positive test: dns_servers with valid IPs
+run "verify_dns_servers_valid" {
+  command = plan
+
+  variables {
+    dns_servers = ["10.0.0.4", "10.0.0.5"]
+  }
+}
+
+# Positive test: dns_servers empty (default, Azure-provided DNS)
+run "verify_dns_servers_empty_default" {
+  command = plan
+
+  variables {
+    dns_servers = []
+  }
+}
+
+# Negative test: dns_servers with invalid IP
+run "verify_dns_servers_invalid_ip" {
+  command = plan
+
+  variables {
+    dns_servers = ["not-an-ip"]
+  }
+
+  expect_failures = [
+    var.dns_servers,
+  ]
+}
+
+# Note: verifying DNS proxy NSG rule creation and attributes is done in
+# integration test tests/integration-test-06-dns-servers.tftest.hcl
+
+# ################################################
+# storage_private_dns_zone_ids variable validation tests
+# ################################################
+
+# Positive test: valid BYO DNS zone ID for blob
+run "verify_storage_private_dns_zone_ids_valid" {
+  command = plan
+
+  variables {
+    storage_private_dns_zone_ids = {
+      blob = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+    }
+  }
+}
+
+# Positive test: empty map (default, module creates DNS zones)
+run "verify_storage_private_dns_zone_ids_empty_default" {
+  command = plan
+
+  variables {
+    storage_private_dns_zone_ids = {}
+  }
+}
+
+# Negative test: invalid sub-resource key
+run "verify_storage_private_dns_zone_ids_invalid_key" {
+  command = plan
+
+  variables {
+    storage_private_dns_zone_ids = {
+      invalid_key = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+    }
+  }
+
+  expect_failures = [
+    var.storage_private_dns_zone_ids,
+  ]
+}
+
+# Negative test: invalid DNS zone resource ID format
+run "verify_storage_private_dns_zone_ids_invalid_resource_id" {
+  command = plan
+
+  variables {
+    storage_private_dns_zone_ids = {
+      blob = "not-a-valid-resource-id"
+    }
+  }
+
+  expect_failures = [
+    var.storage_private_dns_zone_ids,
+  ]
+}
+
+# Positive test: multiple valid BYO DNS zone IDs
+run "verify_storage_private_dns_zone_ids_multiple_valid" {
+  command = plan
+
+  variables {
+    storage_private_dns_zone_ids = {
+      blob  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+      file  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/privateDnsZones/privatelink.file.core.windows.net"
+      queue = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/privateDnsZones/privatelink.queue.core.windows.net"
+    }
+  }
+}
+
+# Note: verifying BYO DNS zone resource creation/skipping is done in
+# integration test tests/integration-test-06-dns-servers.tftest.hcl
+
 # Note:
 #   since we are using avm modules we are not able to test using mock providers.
 #   tests related to validating feature flags and outputs are not included here.

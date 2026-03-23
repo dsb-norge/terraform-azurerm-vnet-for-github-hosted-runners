@@ -13,7 +13,7 @@ locals {
 # create name most resources
 module "runner_name" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   suffix = [var.system_short_name, "runners"]
 }
@@ -29,7 +29,7 @@ resource "azurerm_resource_group" "this" {
 # create names for subnets and network security groups
 module "subnet_names" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   for_each = toset(["runner", "pe"])
 
@@ -122,11 +122,15 @@ resource "azurerm_nat_gateway_public_ip_association" "this" {
 module "gh_runner_vnet" {
 
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.8.1"
+  version = "0.17.1"
 
-  name                = module.runner_name.virtual_network.name_unique
-  location            = var.location
-  resource_group_name = azurerm_resource_group.this.name
+  name      = module.runner_name.virtual_network.name_unique
+  location  = var.location
+  parent_id = azurerm_resource_group.this.id
+
+  # when dns_servers is set, use custom DNS (e.g. Azure Firewall DNS proxy) instead of Azure-provided DNS
+  dns_servers = length(var.dns_servers) > 0 ? { dns_servers = toset(var.dns_servers) } : null
+
   address_space = compact(concat(
     [var.network_specs.address_space],
     var.network_specs.additional_pe_subnets != null ? tolist(var.network_specs.additional_pe_subnets) : []
@@ -145,7 +149,7 @@ module "gh_runner_vnet" {
       nat_gateway = local.should_create_nat_gateway ? { id = azurerm_nat_gateway.this[0].id } : null
 
       #this delegation is required so GitHub hosted runners can deploy NICs in the subnet
-      delegation = [{
+      delegations = [{
         name = "GitHub.Network/networkSettings"
         service_delegation = {
           name = "GitHub.Network/networkSettings"

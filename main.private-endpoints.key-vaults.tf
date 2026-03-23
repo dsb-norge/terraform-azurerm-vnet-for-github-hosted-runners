@@ -45,7 +45,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "key_vault" {
 # create name for key vault private endpoint
 module "kv_pe_names" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.2"
+  version = "0.4.3"
 
   for_each = local.kv_pe_config
 
