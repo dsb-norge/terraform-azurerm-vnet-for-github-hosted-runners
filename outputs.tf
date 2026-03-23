@@ -44,7 +44,7 @@ output "storage_private_dns_zone_ids" {
     subresource_name => (
       contains(keys(var.storage_private_dns_zone_ids), subresource_name)
       ? var.storage_private_dns_zone_ids[subresource_name]
-      : try(azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id, null)
+      : azurerm_private_dns_zone.storage[local.storage_subresource_mapping[subresource_name].dns_zone_name].id
     )
     if(
       contains(keys(var.storage_private_dns_zone_ids), subresource_name) ||
