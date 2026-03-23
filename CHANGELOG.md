@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.3.0...v2.4.0) (2026-03-23)
+
+
+### Features
+
+* support custom DNS servers and BYO private DNS zones for hub ne… ([#28](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/28)) ([572bd99](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/572bd9987f936e783c87e01033cf89c073b72d8a))
+
 ## [2.3.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.2.0...v2.3.0) (2025-09-23)
 
 
