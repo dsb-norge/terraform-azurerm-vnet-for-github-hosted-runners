@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.4.0...v2.5.0) (2026-04-10)
+
+
+### Features
+
+* Add output of network details - Vnet and subnet IPs and resourceids ([#31](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/issues/31)) ([2b2fb1f](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/2b2fb1f304409713b873b5c06d0e93b8112b1c1a))
+
 ## [2.4.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.3.0...v2.4.0) (2026-03-23)
 
 
