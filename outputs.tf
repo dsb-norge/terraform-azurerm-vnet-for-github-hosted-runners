@@ -27,6 +27,16 @@ output "outbound_ip_address" {
   value       = local.should_create_nat_gateway ? azurerm_public_ip.this[0].ip_address : null
 }
 
+output "private_endpoint_subnet_address_prefix" {
+  description = "The address prefix (CIDR) of the private endpoint subnet."
+  value       = local.pe_subnet_address_prefixes[0]
+}
+
+output "private_endpoint_subnet_resource_id" {
+  description = "The resource ID of the private endpoint subnet."
+  value       = module.gh_runner_vnet.subnets.pe_subnet.resource_id
+}
+
 output "resource_group_id" {
   description = "The resource ID of the resource group containing the resources for the Azure Virtual Network (VNet) designed to host GitHub hosted Actions runners"
   value       = azurerm_resource_group.this.id
@@ -35,6 +45,16 @@ output "resource_group_id" {
 output "runner_nsg_resource_id" {
   description = "The resource ID of the runner subnet network security group, or null if no NSG was created by this module."
   value       = local.should_create_nsg_for_runner_subnet ? azurerm_network_security_group.this["runner"].id : null
+}
+
+output "runner_subnet_address_prefix" {
+  description = "The address prefix (CIDR) of the runner subnet."
+  value       = local.runner_subnet_address_prefixes[0]
+}
+
+output "runner_subnet_resource_id" {
+  description = "The resource ID of the runner subnet."
+  value       = module.gh_runner_vnet.subnets.gh_runners.resource_id
 }
 
 output "storage_private_dns_zone_ids" {
@@ -53,7 +73,14 @@ output "storage_private_dns_zone_ids" {
   }
 }
 
+output "virtual_network_address_space" {
+  description = "The address space of the virtual network (VNet) designed to host GitHub hosted Actions runners."
+  value       = var.network_specs.address_space
+}
+
 output "virtual_network_resource_id" {
-  description = "The resource ID of the virtual network (VNet) designed to host GitHub hosted Actions runners"
+  description = "The resource ID of the virtual network (VNet) designed to host GitHub hosted Actions runners."
   value       = module.gh_runner_vnet.resource_id
 }
+
+

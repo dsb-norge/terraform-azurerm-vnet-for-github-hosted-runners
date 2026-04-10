@@ -2,8 +2,6 @@
 
 Example showing how it is possible to add additional NSG rules for the runner subnet and private endpoint subnet. These rules are merged with the built-in rules provided by the module.
 
-```hcl
-
 <!-- BEGIN_TF_DOCS -->
 
 ```hcl

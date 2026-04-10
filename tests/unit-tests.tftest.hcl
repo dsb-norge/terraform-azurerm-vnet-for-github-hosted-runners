@@ -694,9 +694,87 @@ run "verify_storage_private_dns_zone_ids_multiple_valid" {
 # Note: verifying BYO DNS zone resource creation/skipping is done in
 # integration test tests/integration-test-06-dns-servers.tftest.hcl
 
+# ################################################
+# Output validation tests
+# ################################################
+
+# Test virtual_network_address_space output matches input
+run "verify_virtual_network_address_space_output" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space = "10.0.0.0/25"
+    }
+  }
+
+  assert {
+    condition     = output.virtual_network_address_space == "10.0.0.0/25"
+    error_message = "Expected virtual_network_address_space to be '10.0.0.0/25', got '${output.virtual_network_address_space}'"
+  }
+}
+
+# Test runner_subnet_address_prefix output is the first half of the address space
+run "verify_runner_subnet_address_prefix_output" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space = "10.0.0.0/25"
+    }
+  }
+
+  assert {
+    condition     = output.runner_subnet_address_prefix == cidrsubnet("10.0.0.0/25", 1, 0)
+    error_message = "Expected runner_subnet_address_prefix to be '${cidrsubnet("10.0.0.0/25", 1, 0)}', got '${output.runner_subnet_address_prefix}'"
+  }
+}
+
+# Test private_endpoint_subnet_address_prefix output is the second half of the address space
+run "verify_private_endpoint_subnet_address_prefix_output" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space = "10.0.0.0/25"
+    }
+  }
+
+  assert {
+    condition     = output.private_endpoint_subnet_address_prefix == cidrsubnet("10.0.0.0/25", 1, 1)
+    error_message = "Expected private_endpoint_subnet_address_prefix to be '${cidrsubnet("10.0.0.0/25", 1, 1)}', got '${output.private_endpoint_subnet_address_prefix}'"
+  }
+}
+
+# Test address outputs with a different address space
+run "verify_subnet_address_outputs_with_different_space" {
+  command = plan
+
+  variables {
+    network_specs = {
+      address_space = "172.16.0.0/24"
+    }
+  }
+
+  assert {
+    condition     = output.virtual_network_address_space == "172.16.0.0/24"
+    error_message = "Expected virtual_network_address_space to be '172.16.0.0/24', got '${output.virtual_network_address_space}'"
+  }
+
+  assert {
+    condition     = output.runner_subnet_address_prefix == cidrsubnet("172.16.0.0/24", 1, 0)
+    error_message = "Expected runner_subnet_address_prefix to be '${cidrsubnet("172.16.0.0/24", 1, 0)}', got '${output.runner_subnet_address_prefix}'"
+  }
+
+  assert {
+    condition     = output.private_endpoint_subnet_address_prefix == cidrsubnet("172.16.0.0/24", 1, 1)
+    error_message = "Expected private_endpoint_subnet_address_prefix to be '${cidrsubnet("172.16.0.0/24", 1, 1)}', got '${output.private_endpoint_subnet_address_prefix}'"
+  }
+}
+
 # Note:
 #   since we are using avm modules we are not able to test using mock providers.
-#   tests related to validating feature flags and outputs are not included here.
+#   tests related to validating feature flags and resource ID outputs are not included here.
 #
 #   test coverage ensured by integration test tests/integration-test-01-basic.tftest.hcl
 #
