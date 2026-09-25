@@ -37,6 +37,17 @@ Below you can find basic guidelines and rules that must be followed during modul
   ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform test
 ```
 
+### Naming parity test
+
+`modules/naming` must render exactly the names `Azure/naming/azurerm` 0.4.3 did, from the same `random_string` values.
+Callers' deployed names depend on it, and none of the named Azure resources can be renamed.
+`tests/unit-tests-naming.tftest.hcl` compares both modules with fixed random values; it needs no Azure access:
+
+```shell
+terraform init
+terraform test -filter=tests/unit-tests-naming.tftest.hcl
+```
+
 ## Release and versioning
 
 This module uses [semantic versioning](https://semver.org).
