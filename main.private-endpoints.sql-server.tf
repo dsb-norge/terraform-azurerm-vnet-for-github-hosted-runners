@@ -44,8 +44,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "sql_server" {
 
 # create name for SQL Server private endpoint
 module "sql_pe_names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
+  source = "./modules/naming"
 
   for_each = local.sql_pe_config
 

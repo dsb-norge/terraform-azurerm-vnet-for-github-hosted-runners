@@ -130,8 +130,7 @@ locals {
 
 # private endpoint unique names per storage account
 module "storage_pe_names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
+  source = "./modules/naming"
 
   for_each = var.storage_account_private_endpoints
 
