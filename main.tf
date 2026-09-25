@@ -12,8 +12,7 @@ locals {
 
 # create name most resources
 module "runner_name" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
+  source = "./modules/naming"
 
   suffix = [var.system_short_name, "runners"]
 }
@@ -28,8 +27,7 @@ resource "azurerm_resource_group" "this" {
 
 # create names for subnets and network security groups
 module "subnet_names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
+  source = "./modules/naming"
 
   for_each = toset(["runner", "pe"])
 
