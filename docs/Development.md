@@ -37,15 +37,26 @@ Below you can find basic guidelines and rules that must be followed during modul
   ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform test
 ```
 
-### Naming parity test
+### Naming parity and migration tests
 
-`modules/naming` must render exactly the names `Azure/naming/azurerm` 0.4.3 did, from the same `random_string` values.
-Callers' deployed names depend on it, and none of the named Azure resources can be renamed.
-`tests/unit-tests-naming.tftest.hcl` compares both modules with fixed random values; it needs no Azure access:
+`modules/naming` must render exactly the names `Azure/naming/azurerm` 0.4.3 did, from the same `random_string` values,
+and must take over the state `Azure/naming` left behind. Callers' deployed names depend on both, and none of the named
+Azure resources can be renamed.
+
+| Test | Checks | Azure access |
+| --- | --- | --- |
+| `tests/unit-tests-naming.tftest.hcl` | Both modules render identical names from fixed random values (typical suffix, truncation, empty suffix element) | No |
+| `tests/unit-tests-naming-migration.tftest.hcl` | `modules/naming` applied on the state `Azure/naming` created keeps every name | No |
+| `tests/integration-test-07-migration-from-2.5.0.tftest.hcl` | A caller on 2.5.0 upgraded to this checkout keeps every resource: same resource IDs, private endpoint names and NAT gateway IP | Yes |
+
+The migration tests share one state between runs of different modules with `state_key` (terraform 1.11+). The fixtures
+in `tests/migration/legacy/` and `tests/migration/current/` must stay identical apart from `module.tf`.
+
+The first two run locally without Azure:
 
 ```shell
 terraform init
-terraform test -filter=tests/unit-tests-naming.tftest.hcl
+terraform test -filter=tests/unit-tests-naming.tftest.hcl -filter=tests/unit-tests-naming-migration.tftest.hcl
 ```
 
 ## Release and versioning
