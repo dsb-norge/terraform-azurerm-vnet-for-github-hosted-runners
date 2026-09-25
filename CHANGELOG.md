@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.5.0...v2.6.0) (2026-09-25)
+
+
+### Features
+
+* replace Azure/naming with a lean internal naming module ([e33d251](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/e33d2516c6e65ba13cd4ef39a8609669a92d02da))
+
 ## [2.5.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.4.0...v2.5.0) (2026-04-10)
 
 
