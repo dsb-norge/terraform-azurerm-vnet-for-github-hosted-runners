@@ -35,7 +35,7 @@ module "names" {
 
 resource "azurerm_resource_group" "example" {
   # non-standard location, passed to the module further down
-  location = "northeurope"
+  location = "swedencentral"
   name     = module.names["1"].resource_group.name_unique
 }
 
