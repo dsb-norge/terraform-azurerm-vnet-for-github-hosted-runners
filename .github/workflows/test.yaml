@@ -3,7 +3,7 @@ name: "Terraform module CI"
 # note:
 #   for this workflow to work from a new repo in the organization the following must be done:
 #     - allow the repo access to the organization secret ORG_TF_CICD_APP_PRIVATE_KEY here: https://github.com/organizations/dsb-norge/settings/secrets/actions
-#     - allow the repo access to the organization variables ORG_TF_CICD_APP_ID and ORG_TF_CICD_APP_INSTALLATION_ID here: https://github.com/organizations/dsb-norge/settings/variables/actions
+#     - allow the repo access to the organization variable ORG_TF_CICD_APP_ID here: https://github.com/organizations/dsb-norge/settings/variables/actions
 #     - allow the app 'dsb-norge-terraform-cicd-access' access to this repo by "configuring" the app from here: https://github.com/organizations/dsb-norge/settings/installations
 
 on:
@@ -13,22 +13,26 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch: # allows manual build
 
-env:
-  ARM_TENANT_ID: ${{ secrets.REPO_AZURE_DSB_TENANT_ID }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}
-  ARM_CLIENT_ID: ${{ secrets.REPO_AZURE_TERRAFORM_USER_SERVICE_PRINCIPAL }}
-  ARM_USE_OIDC: true
-  ARM_USE_AZUREAD: true
-  TF_IN_AUTOMATION: true
-
 jobs:
   tf:
-    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v0
+    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v1
     secrets: inherit
     permissions:
-      contents: write # required for checkout action.
-      id-token: write # required for Azure password-less login
-      pull-requests: write # required for commenting on PR
+      id-token: write # OIDC, for the test jobs
+      contents: read # checkout; the docs commit is pushed with the app token
+      pull-requests: write # the validation and tests comments
+      actions: read # job links in the tests comment
     with:
       terraform-version: "1.16.x"
       tflint-version: "v0.64.0"
+      # unit tests mock their providers and run without credentials; every other test file runs in
+      # the GitHub Environment 'tftest-integration', whose ARM_TENANT_ID, ARM_SUBSCRIPTION_ID and
+      # ARM_CLIENT_ID secrets are the Azure principal's, which trusts only that environment
+      # (ARM_USE_OIDC is on by default in an environment lane)
+      terraform-test-lanes-yml: |
+        - name: unit
+          match: ["**/unit-*.tftest.hcl"]
+        - name: integration
+          github-environment: auto
+          extra-envs-yml:
+            ARM_USE_AZUREAD: true
