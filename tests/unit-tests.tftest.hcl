@@ -1,16 +1,6 @@
-provider "azurerm" {
-  features {}
-}
+mock_provider "azurerm" {}
 
-provider "azapi" {}
-
-mock_provider "azurerm" {
-  alias = "azurerm_mock"
-}
-
-mock_provider "azapi" {
-  alias = "azapi_mock"
-}
+mock_provider "azapi" {}
 
 # Basic module validation with default values
 run "verify_module_with_defaults" {
