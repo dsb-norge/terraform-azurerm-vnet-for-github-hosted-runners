@@ -12,6 +12,9 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
+  schedule:
+    # weekly: the module commits no lock file, so this run tests the newest provider releases its ranges allow
+    - cron: "17 7 * * 1" # Mondays 07:17 UTC
   workflow_dispatch: # allows manual build
 
 jobs:
