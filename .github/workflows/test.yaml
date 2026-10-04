@@ -4,6 +4,7 @@ name: "Terraform module CI"
 #   for this workflow to work from a new repo in the organization the following must be done:
 #     - allow the repo access to the organization secret ORG_TF_CICD_APP_PRIVATE_KEY here: https://github.com/organizations/dsb-norge/settings/secrets/actions
 #     - allow the repo access to the organization variable ORG_TF_CICD_APP_ID here: https://github.com/organizations/dsb-norge/settings/variables/actions
+#     - allow the repo access to the organization Dependabot secret ORG_TF_CICD_APP_PRIVATE_KEY here: https://github.com/organizations/dsb-norge/settings/secrets/dependabot
 #     - allow the app 'dsb-norge-terraform-cicd-access' access to this repo by "configuring" the app from here: https://github.com/organizations/dsb-norge/settings/installations
 
 on:
@@ -25,10 +26,14 @@ jobs:
     with:
       terraform-version: "1.16.x"
       tflint-version: "v0.64.0"
+      # a Dependabot pull request is judged before validation and the tests run it; an admitted one runs every
+      # lane and gets its regenerated README committed (github-actions-terraform docs/Dependabot-admission.md)
+      dependabot-admission-enabled: true
       # unit tests mock their providers and run without credentials; every other test file runs in
-      # the GitHub Environment 'tftest-integration', whose ARM_TENANT_ID, ARM_SUBSCRIPTION_ID and
-      # ARM_CLIENT_ID secrets are the Azure principal's, which trusts only that environment
-      # (ARM_USE_OIDC is on by default in an environment lane)
+      # the GitHub Environment 'tftest-integration', as the Azure principal terraform-sandbox-tf-module-cicd,
+      # which trusts only that environment (ARM_USE_OIDC is on by default in an environment lane). Its IDs are
+      # plain values, not secrets: a Dependabot run reads no environment secret, and the subject the principal
+      # trusts is what protects it
       terraform-test-lanes-yml: |
         - name: unit
           match: ["**/unit-*.tftest.hcl"]
@@ -36,3 +41,6 @@ jobs:
           github-environment: auto
           extra-envs-yml:
             ARM_USE_AZUREAD: true
+            ARM_TENANT_ID: "93d155bd-6282-4a3c-8d5e-82ba9b074f99"
+            ARM_SUBSCRIPTION_ID: "8799ecd7-78bc-4835-bca1-22c7c68109d5" # ss13-ikt-iac-cicd
+            ARM_CLIENT_ID: "0c20334d-5253-48b3-8478-f4c501e49d6b" # terraform-sandbox-tf-module-cicd
