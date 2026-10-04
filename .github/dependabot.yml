@@ -7,25 +7,32 @@ version: 2
 # module gets this same file, so it must not name anything specific to one repo.
 #
 # The examples in examples/ call the module by its local path and pin nothing of their own, so the root is the
-# only directory with dependencies. The modules constrain their providers with ranges: Dependabot raises a pull
-# request when a release falls outside a module's range, such as a new provider major.
+# only directory with dependencies.
+#
+# A module's provider constraint is a promise to its callers, the major it supports: `>= 4.0, < 5.0.0` for azurerm
+# 4. People choose the major; no major update is ever proposed, for providers or for the modules a module calls.
+# Within the major Dependabot proposes nothing for a provider, whose newest release the range already allows: the
+# module is lockless, so every run, the module CI's weekly scheduled one included, tests the newest release in the
+# range. What Dependabot bumps is a module the module calls at an exact version.
 #
 # Each pull request meets github-actions-terraform's Dependabot admission in the module workflow, which the
 # calling workflow switches on with `dependabot-admission-enabled: true`: only an admitted one is validated and
 # tested, and it gets its regenerated README committed.
 #
-# The `chore:` prefix makes no module release (release-please releases on `feat:` and `fix:`): a bump is
-# released with the next change that is one.
+# The `fix(deps)` prefix makes release-please release a patch: a bumped module call changes what the module ships.
 updates:
   - package-ecosystem: "terraform"
     directories: ["/"]
     cooldown:
       default-days: 5
     commit-message:
-      prefix: "chore: bump tf dep"
+      prefix: "fix(deps)"
     schedule:
       interval: "daily"
       time: "03:00"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       dependencies:
         patterns: ["*"]
