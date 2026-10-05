@@ -4,25 +4,31 @@
 version: 2
 
 # Shared Dependabot configuration for DSB terraform modules: the module at the repository root. Every terraform
-# module gets this same file, so it must not name anything specific to one repo.
+# module gets this same file, so it must not name anything specific to one repo. The strategy behind it, and what a
+# module developer does when, is github-actions-terraform's docs/Module-dependencies.md:
+# https://github.com/dsb-norge/github-actions-terraform/blob/main/docs/Module-dependencies.md
 #
-# The examples in examples/ call the module by its local path and pin nothing of their own, so the root is the
-# only directory with dependencies.
+# Dependabot updates the modules a module calls at an exact version, and nothing else:
+# - No provider (`allow` takes only three-part names: a registry module is azure/naming/azurerm, a provider
+#   hashicorp/azurerm). A module's provider constraint is a range over the major it supports, chosen by people:
+#   `>= 4.0.0, < 5.0.0` for azurerm 4. Within it there is nothing to update, since the module is lockless and every
+#   run, the module CI's weekly scheduled one included, tests the newest release in the range; what Dependabot
+#   proposed for a range was always a new major, by rewriting it, even with majors ignored.
+# - No major, for the modules a module calls either. Below 1.0 a minor may break too: Dependabot proposes it, and
+#   module auto-merge leaves it for a person.
 #
-# A module's provider constraint is a promise to its callers, the major it supports: `>= 4.0, < 5.0.0` for azurerm
-# 4. People choose the major; no major update is ever proposed, for providers or for the modules a module calls.
-# Within the major Dependabot proposes nothing for a provider, whose newest release the range already allows: the
-# module is lockless, so every run, the module CI's weekly scheduled one included, tests the newest release in the
-# range. What Dependabot bumps is a module the module calls at an exact version.
+# Versions pinned in examples/ are not updated; the root is the module that ships.
 #
-# Each pull request meets github-actions-terraform's Dependabot admission in the module workflow, which the
-# calling workflow switches on with `dependabot-admission-enabled: true`: only an admitted one is validated and
-# tested, and it gets its regenerated README committed.
+# Each pull request meets github-actions-terraform's Dependabot admission in the module workflow, which the calling
+# workflow switches on with `dependabot-admission-enabled: true`: only an admitted one is validated and tested, and
+# it gets its regenerated README committed.
 #
 # The `fix(deps)` prefix makes release-please release a patch: a bumped module call changes what the module ships.
 updates:
   - package-ecosystem: "terraform"
     directories: ["/"]
+    allow:
+      - dependency-name: "*/*/*"
     cooldown:
       default-days: 5
     commit-message:
