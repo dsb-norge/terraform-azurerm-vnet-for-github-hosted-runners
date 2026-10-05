@@ -68,6 +68,39 @@ Use [respective conventional commits](https://github.com/googleapis/release-plea
 
 Refer to [release-please documentation](https://github.com/googleapis/release-please) for better understanding and when additional questions occur.
 
+## Dependencies and versions
+
+The full strategy, with the reasons, is
+[Module dependencies](https://github.com/dsb-norge/github-actions-terraform/blob/main/docs/Module-dependencies.md)
+in github-actions-terraform. In short:
+
+- **Providers get a range over one major**, `version = ">= 4.0.0, < 5.0.0"`, with `source` and
+  `version` on lines of their own. Never pin a provider exactly: every caller of the module would be
+  bound to that version.
+- **No lock file.** Callers decide with their own lock file; CI here always installs the newest
+  release in the range, and the weekly scheduled run tests it.
+- **Modules this module calls are pinned exactly**, `version = "0.4.4"`.
+
+What happens on its own:
+
+- **Dependabot** proposes new versions of the called modules, never of a provider and never a
+  major, as `fix(deps)` commits, so each merged bump is released as a patch.
+- **The Dependabot admission** judges each of its pull requests before anything runs it (allowed
+  publisher, at least three days old, signed like the version before).
+- **With auto-merge switched on** in `.github/workflows/test.yaml`, an admitted, green Dependabot
+  pull request that stays within each dependency's major merges itself, and so does the release
+  pull request that follows; the `Create test matrix` job's notice says why one does not.
+
+When to act:
+
+| When | Do |
+|---|---|
+| A Dependabot pull request waits because it moves a 0.x module's minor or a major | Read the called module's release notes, check the tests, and merge it. If it changes what callers get, push a commit saying so (`feat:`, or `feat!:` with a `BREAKING CHANGE:` footer). |
+| The weekly scheduled run is red | A provider release broke the module or its tests: fix it in a pull request (`fix:`), or cap the range below that release until it is fixed. |
+| A provider's next major is out and callers are moving | Widen the range (`< 6.0.0`, a `feat:` release) when the module works with both majors, or move it (`>= 5.0.0, < 6.0.0`, a `feat!:` release) when it needs the new one. |
+| The module needs a newer provider feature | Raise the floor in the same pull request, a `feat:` release. |
+| A release pull request waits | It changes more than the changelog; review and merge it. |
+
 ## Documentation
 
 Repo CI action has step to generate terraform documentation automatically using [terraform-docs action](https://github.com/terraform-docs/gh-actions) and configuration files in repo.
