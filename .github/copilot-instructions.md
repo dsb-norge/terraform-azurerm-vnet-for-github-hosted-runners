@@ -133,6 +133,39 @@ The directory for additional documentation is:
 
 - `docs/Development.md` - Help for developers of the module.
 <!-- markdownlint-disable MD041 first-line-heading/first-line-h1 -->
+## Dependencies and versions
+
+Every module repository versions and updates its dependencies the same way. The canonical strategy, with the reasons, is [Module dependencies](https://github.com/dsb-norge/github-actions-terraform/blob/main/docs/Module-dependencies.md); `docs/Development.md` has a "Dependencies and versions" section with the same rules. Follow them; do not invent your own.
+
+### Rules
+
+- **Give a provider a range over one major**, written `>= <floor>, < <next major>.0.0`, with `source` and `version` on lines of their own (Dependabot skips an entry written on one line):
+
+  ```hcl
+  terraform {
+    required_providers {
+      azurerm = {
+        source  = "hashicorp/azurerm"
+        version = ">= 4.0.0, < 5.0.0"
+      }
+    }
+  }
+  ```
+
+- **Never pin a provider exactly in a module.** A module's constraint binds every caller, and two modules that pin different versions cannot be used together.
+- **Do not commit a lock file** (`.terraform.lock.hcl`). The callers' own locks decide what they run; CI installs the newest release the range allows, and a weekly scheduled run tests it.
+- **Pin a module this module calls to an exact version**, e.g. `version = "0.4.4"`. Dependabot updates it.
+- **Do not edit `.github/dependabot.yml`**: it is managed centrally. It updates called modules only, never providers and never a major, with `fix(deps)` commits that release-please releases as a patch.
+- **Auto-merge**, where the repository switches it on, merges an admitted, green Dependabot pull request only when every dependency keeps its major (below 1.0, its minor: a 0.x minor counts as a major). Anything else waits for a person.
+
+### When, and what to do
+
+- **A Dependabot pull request waits for review:** read the called module's release notes for every version it skips, and the test results. If it changes what callers get (new or removed inputs, replaced resources), push a commit to the branch that says so: `feat:`, or `feat!:` with a `BREAKING CHANGE:` footer.
+- **A provider releases a new major:** a human migration decision, never automatic. Widen the range (`>= 4.0.0, < 6.0.0`, a `feat:` commit) when the module works with both majors, and test the older major by hand, since CI tests only the newest; or move it (`>= 5.0.0, < 6.0.0`, `feat!:` with a `BREAKING CHANGE:` footer) when the module needs the new one.
+- **The module needs a newer provider feature:** raise the floor in the same pull request as the change that needs it, as `feat:`.
+- **The weekly scheduled run is red:** fix the module in a pull request (`fix:`). If that takes time, cap the range below the breaking release (`>= 4.0.0, < 4.82.0`) as a `fix:`, and lift the cap with the fix. Never pin exactly instead.
+- **You touch an example:** versions pinned under `examples/` are not updated by Dependabot; keep them in step with the module by hand.
+<!-- markdownlint-disable MD041 first-line-heading/first-line-h1 -->
 ## Command invocations for working with the project
 
 ### Code Validation
