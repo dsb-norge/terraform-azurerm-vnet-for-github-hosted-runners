@@ -120,7 +120,7 @@ resource "azurerm_nat_gateway_public_ip_association" "this" {
 module "gh_runner_vnet" {
 
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.17.1"
+  version = "0.22.2"
 
   name      = module.runner_name.virtual_network.name_unique
   location  = var.location
