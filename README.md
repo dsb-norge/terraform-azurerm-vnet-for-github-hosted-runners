@@ -141,7 +141,7 @@ Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-gith
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_dbx_pe_names"></a> [dbx\_pe\_names](#module\_dbx\_pe\_names) | ./modules/naming | n/a |
-| <a name="module_gh_runner_vnet"></a> [gh\_runner\_vnet](#module\_gh\_runner\_vnet) | Azure/avm-res-network-virtualnetwork/azurerm | 0.17.1 |
+| <a name="module_gh_runner_vnet"></a> [gh\_runner\_vnet](#module\_gh\_runner\_vnet) | Azure/avm-res-network-virtualnetwork/azurerm | 0.22.2 |
 | <a name="module_kv_pe_names"></a> [kv\_pe\_names](#module\_kv\_pe\_names) | ./modules/naming | n/a |
 | <a name="module_runner_name"></a> [runner\_name](#module\_runner\_name) | ./modules/naming | n/a |
 | <a name="module_sql_pe_names"></a> [sql\_pe\_names](#module\_sql\_pe\_names) | ./modules/naming | n/a |
