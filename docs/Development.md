@@ -59,6 +59,22 @@ terraform init
 terraform test -filter=tests/unit-tests-naming.tftest.hcl -filter=tests/unit-tests-naming-migration.tftest.hcl
 ```
 
+### Databricks in the private endpoints example
+
+`examples/02-private-endpoints` creates an Azure Databricks workspace only so it has something to connect a private
+endpoint to. The workspace sits in `westeurope`, apart from the rest of the example.
+
+It is not in `swedencentral` with the rest: since 2026-10-06 a workspace there never finishes deleting. Something in
+that region subscribes to Event Grid events on the workspace's managed storage account and re-creates the subscription
+each time the delete removes it, so the delete loops for hours and ends in `ApplianceBeingDeleted`.
+`integration-test-02` hits the CI job timeout.
+
+Deleting a workspace normally takes 3–5 minutes. If test 02 hangs on its destroy again, look in the activity log of the
+test subscription for a `Microsoft.Databricks/workspaces/delete` that never completes.
+
+A run that is cancelled mid-test never destroys what it created. The resource group `rg-github-network-module-test-dbx`
+has a fixed name, so the next run fails to create it until it is deleted.
+
 ## Release and versioning
 
 This module uses [semantic versioning](https://semver.org).

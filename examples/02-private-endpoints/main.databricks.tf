@@ -3,7 +3,9 @@
 # Databricks workspace.
 # Below is the minimal required infrastructure to create a Databricks workspace that will support Private Endpoints.
 locals {
-  databricks_location = "swedencentral"
+  # Not the example's swedencentral: a Databricks workspace there never finishes deleting (since 2026-10-06), which
+  # hangs the integration test's destroy. See docs/Development.md.
+  databricks_location = "westeurope"
 }
 
 resource "azurerm_resource_group" "dbx_example" {
