@@ -17,6 +17,9 @@ module "dbx_vnet" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
   version = "0.17.1"
 
+  # AVM modules report usage telemetry to Microsoft unless told not to
+  enable_telemetry = false
+
   location      = local.databricks_location
   parent_id     = azurerm_resource_group.dbx_example.id
   address_space = ["10.0.1.0/24"]
