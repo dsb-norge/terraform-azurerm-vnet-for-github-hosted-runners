@@ -27,6 +27,8 @@ The module performs the following actions:
 
 This module simplifies the deployment of a secure and isolated network environment for GitHub Actions self-hosted runners in Azure. It provides a configurable and reusable solution for organizations that require private networking for their CI/CD pipelines.
 
+The virtual network is built with the [Azure Verified Module](https://github.com/Azure/terraform-azurerm-avm-res-network-virtualnetwork) for virtual networks, with its usage telemetry to Microsoft turned off.
+
 ## Usage
 
 Refer to [examples](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/tree/main/examples) for usage of module.

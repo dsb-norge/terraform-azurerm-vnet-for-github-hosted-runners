@@ -122,6 +122,9 @@ module "gh_runner_vnet" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
   version = "0.22.2"
 
+  # AVM modules report usage telemetry to Microsoft unless told not to
+  enable_telemetry = false
+
   name      = module.runner_name.virtual_network.name_unique
   location  = var.location
   parent_id = azurerm_resource_group.this.id
