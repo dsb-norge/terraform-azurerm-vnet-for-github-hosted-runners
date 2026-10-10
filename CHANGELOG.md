@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.6.1...v2.7.0) (2026-10-10)
+
+
+### Features
+
+* require azapi 2.12 or newer ([68934a6](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/68934a6d46268f37a9b507efad3c848a733a996d))
+
 ## [2.6.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.6.0...v2.6.1) (2026-10-10)
 
 
