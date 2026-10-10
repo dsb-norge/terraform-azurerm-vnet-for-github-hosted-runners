@@ -9,32 +9,29 @@ provider "azurerm" {
   }
 }
 
-# unique names to avoid name collisions during integration testing
-module "names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
-
-  for_each = toset(["hub", "other"])
-
-  suffix = ["example", each.value]
+# random part of the names, so that runs of the example do not collide
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
 }
 
 # will be reused by both VNets
 resource "azurerm_resource_group" "example" {
   location = "norwayeast" # same as default location for the module
-  name     = module.names["hub"].resource_group.name_unique
+  name     = "rg-example-hub-${random_string.suffix.result}"
 }
 
 resource "azurerm_virtual_network" "hub" {
   address_space       = ["10.1.0.0/16"]
   location            = azurerm_resource_group.example.location
-  name                = module.names["hub"].virtual_network.name_unique
+  name                = "vnet-example-hub-${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "hub_default" {
   address_prefixes     = ["10.1.0.0/24"]
-  name                 = module.names["hub"].subnet.name_unique
+  name                 = "snet-example-hub-${random_string.suffix.result}"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.hub.name
 }
@@ -42,13 +39,13 @@ resource "azurerm_subnet" "hub_default" {
 resource "azurerm_virtual_network" "other" {
   address_space       = ["10.2.0.0/16"]
   location            = azurerm_resource_group.example.location
-  name                = module.names["other"].virtual_network.name_unique
+  name                = "vnet-example-other-${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "other_default" {
   address_prefixes     = ["10.2.0.0/24"]
-  name                 = module.names["other"].subnet.name_unique
+  name                 = "snet-example-other-${random_string.suffix.result}"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.other.name
 }

@@ -16,18 +16,17 @@ provider "azurerm" {
   }
 }
 
-# unique names to avoid name collisions during integration testing
-module "names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
-
-  suffix = ["example"]
+# random part of the names, so that runs of the example do not collide
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
 }
 
 # create a resource group for this example's supporting resources
 resource "azurerm_resource_group" "example" {
   location = "norwayeast"
-  name     = module.names.resource_group.name_unique
+  name     = "rg-example-${random_string.suffix.result}"
 }
 
 # create a storage account to demonstrate private endpoint with BYO DNS zone
@@ -35,7 +34,7 @@ resource "azurerm_storage_account" "example" {
   account_replication_type = "LRS"
   account_tier             = "Standard"
   location                 = azurerm_resource_group.example.location
-  name                     = module.names.storage_account.name_unique
+  name                     = "stexample${random_string.suffix.result}"
   resource_group_name      = azurerm_resource_group.example.name
 }
 

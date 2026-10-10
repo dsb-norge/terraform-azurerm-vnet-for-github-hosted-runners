@@ -23,7 +23,7 @@ module "dbx_vnet" {
   location      = local.databricks_location
   parent_id     = azurerm_resource_group.dbx_example.id
   address_space = ["10.0.1.0/24"]
-  name          = module.names["1"].virtual_network.name_unique
+  name          = "vnet-example-dbx-${random_string.suffix.result}"
 
   subnets = {
     public = {
@@ -65,13 +65,13 @@ module "dbx_vnet" {
 
 resource "azurerm_network_security_group" "dbx_nsg" {
   location            = local.databricks_location
-  name                = module.names["1"].network_security_group.name_unique
+  name                = "nsg-example-dbx-${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.dbx_example.name
 }
 
 resource "azurerm_databricks_workspace" "example" {
   location            = local.databricks_location
-  name                = module.names["1"].databricks_workspace.name_unique
+  name                = "dbw-example-${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.dbx_example.name
   sku                 = "premium"
 
