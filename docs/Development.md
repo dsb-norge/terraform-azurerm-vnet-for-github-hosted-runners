@@ -43,14 +43,22 @@ Below you can find basic guidelines and rules that must be followed during modul
 and must take over the state `Azure/naming` left behind. Callers' deployed names depend on both, and none of the named
 Azure resources can be renamed.
 
+The project no longer calls `Azure/naming` (deprecated) anywhere. The unit tests hold what it did as fixed references
+instead: names it rendered, and the resources it created. Never edit those references to make a test pass.
+
 | Test | Checks | Azure access |
 | --- | --- | --- |
-| `tests/unit-tests-naming.tftest.hcl` | Both modules render identical names from fixed random values (typical suffix, truncation, empty suffix element) | No |
-| `tests/unit-tests-naming-migration.tftest.hcl` | `modules/naming` applied on the state `Azure/naming` created keeps every name | No |
+| `tests/unit-tests-naming.tftest.hcl` | `modules/naming` renders, from fixed random values, the exact names `Azure/naming` 0.4.3 rendered from them (typical suffix, truncation, empty suffix element) | No |
+| `tests/unit-tests-naming-migration.tftest.hcl` | `modules/naming` applied on the state of `tests/naming-migration/azure-naming-0.4.3/`, a frozen copy of the `random_string` resources `Azure/naming` created, keeps every name | No |
 | `tests/integration-test-07-migration-from-2.5.0.tftest.hcl` | A caller on 2.5.0 upgraded to this checkout keeps every resource: same resource IDs, private endpoint names and NAT gateway IP | Yes |
+
+Test 07 deploys this module's own 2.5.0 release, which still named resources with `Azure/naming`; that is what callers
+upgrading from it have in their state.
 
 The migration tests share one state between runs of different modules with `state_key` (terraform 1.11+). The fixtures
 in `tests/migration/legacy/` and `tests/migration/current/` must stay identical apart from `module.tf`.
+
+The examples name their supporting resources with a `random_string`, not a naming module.
 
 The first two run locally without Azure:
 
