@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.6.0...v2.6.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** bump azure/avm-res-network-virtualnetwork/azurerm in / ([cd40bcd](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/cd40bcd223437587828dcf239e73380d05615e33))
+* turn off usage telemetry in the Azure Verified Modules ([af6fc8a](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/af6fc8a1434c7996201d5ce759a26e73289ebc89))
+
 ## [2.6.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.5.0...v2.6.0) (2026-09-25)
 
 
