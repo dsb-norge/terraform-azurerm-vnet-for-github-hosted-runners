@@ -5,6 +5,9 @@
 # embeds the random part Azure/naming created, and none of the named resources can be renamed. So a resource whose name
 # changed would be replaced, and would get a new resource ID. Unchanged IDs, private endpoint names and NAT gateway
 # public IP after run 2 show the upgrade replaced nothing.
+#
+# Planned for removal, together with tests/migration/, in a future release. Until then it is the one place the project
+# still pulls in the deprecated Azure/naming module, through the 2.5.0 release it deploys; that is intended.
 
 provider "azurerm" {
   features {
