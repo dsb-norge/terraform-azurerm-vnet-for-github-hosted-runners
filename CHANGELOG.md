@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.7.0...v2.7.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* keep the naming module on random 3.x ([4593a49](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/4593a4932da95504b0adfbd3a15dc193363171fb))
+
 ## [2.7.0](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.6.1...v2.7.0) (2026-10-10)
 
 
