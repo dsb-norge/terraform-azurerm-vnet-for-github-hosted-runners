@@ -9,18 +9,17 @@ provider "azurerm" {
   }
 }
 
-# unique names to avoid name collisions during integration testing
-module "names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
-
-  suffix = ["example"]
+# random part of the names, so that runs of the example do not collide
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
 }
 
 # Create a resource group for the example
 resource "azurerm_resource_group" "example" {
   location = "norwayeast" # same as default location for the module
-  name     = module.names.resource_group.name_unique
+  name     = "rg-example-${random_string.suffix.result}"
 }
 
 # Call the module with the custom NSG

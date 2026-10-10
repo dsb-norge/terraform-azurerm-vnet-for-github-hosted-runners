@@ -23,30 +23,27 @@ provider "azurerm" {
 
 provider "random" {}
 
-# create two sets of unique names
-module "names" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.3"
-
-  for_each = toset(["1", "2"])
-
-  suffix = ["example", each.value]
+# random part of the names, so that runs of the example do not collide
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
 }
 
 resource "azurerm_resource_group" "example" {
   # non-standard location, passed to the module further down
   location = "swedencentral"
-  name     = module.names["1"].resource_group.name_unique
+  name     = "rg-example-${random_string.suffix.result}"
 }
 
 data "azurerm_client_config" "current" {}
 
 # two key vaults
 resource "azurerm_key_vault" "example" {
-  for_each = module.names
+  for_each = toset(["1", "2"])
 
   location                   = azurerm_resource_group.example.location
-  name                       = each.value.key_vault.name_unique
+  name                       = "kv-example-${each.key}-${random_string.suffix.result}"
   resource_group_name        = azurerm_resource_group.example.name
   sku_name                   = "standard"
   tenant_id                  = data.azurerm_client_config.current.tenant_id
@@ -56,12 +53,12 @@ resource "azurerm_key_vault" "example" {
 
 # two storage accounts
 resource "azurerm_storage_account" "example" {
-  for_each = module.names
+  for_each = toset(["1", "2"])
 
   account_replication_type = "LRS"
   account_tier             = "Standard"
   location                 = azurerm_resource_group.example.location
-  name                     = each.value.storage_account.name_unique
+  name                     = "stexample${each.key}${random_string.suffix.result}"
   resource_group_name      = azurerm_resource_group.example.name
 }
 
@@ -77,10 +74,10 @@ ephemeral "random_password" "password" {
 
 # two sql servers
 resource "azurerm_mssql_server" "example" {
-  for_each = module.names
+  for_each = toset(["1", "2"])
 
   location                                = azurerm_resource_group.example.location
-  name                                    = each.value.mssql_server.name_unique
+  name                                    = "sql-example-${each.key}-${random_string.suffix.result}"
   resource_group_name                     = azurerm_resource_group.example.name
   version                                 = "12.0"
   administrator_login                     = "administrator_login"
