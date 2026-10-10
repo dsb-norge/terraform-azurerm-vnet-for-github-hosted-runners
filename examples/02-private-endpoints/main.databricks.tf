@@ -15,7 +15,7 @@ resource "azurerm_resource_group" "dbx_example" {
 
 module "dbx_vnet" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.17.1"
+  version = "0.22.2"
 
   # AVM modules report usage telemetry to Microsoft unless told not to
   enable_telemetry = false
