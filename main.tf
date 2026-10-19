@@ -120,7 +120,7 @@ resource "azurerm_nat_gateway_public_ip_association" "this" {
 module "gh_runner_vnet" {
 
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version = "0.22.2"
+  version = "0.22.3"
 
   # AVM modules report usage telemetry to Microsoft unless told not to
   enable_telemetry = false
