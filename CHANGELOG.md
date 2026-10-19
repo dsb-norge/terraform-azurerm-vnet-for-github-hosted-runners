@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.7.1...v2.7.2) (2026-10-19)
+
+
+### Bug Fixes
+
+* **deps:** bump azure/avm-res-network-virtualnetwork/azurerm in / ([d570dbc](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/commit/d570dbc4ad486563ec99b52b4e50442d306f2698))
+
 ## [2.7.1](https://github.com/dsb-norge/terraform-azurerm-vnet-for-github-hosted-runners/compare/v2.7.0...v2.7.1) (2026-10-10)
 
 
