@@ -12,7 +12,18 @@
       "Bash(terraform show*)",
       "Bash(terraform state list*)",
       "Bash(terraform state show*)",
-      "Bash(tflint*)"
+      "Bash(tflint*)",
+      "Bash(eval \"$(gh api -H 'Accept: application/vnd.github.v3.raw' /repos/dsb-norge/terraform-helpers/contents/dsb-tf-proj-helpers.sh)\")",
+      "Bash(eval \"$(curl -s https://raw.githubusercontent.com/dsb-norge/terraform-helpers/main/dsb-tf-proj-helpers.sh)\")",
+      "Bash(tf-status*)",
+      "Bash(tf-help*)",
+      "Bash(tf-check-dir*)",
+      "Bash(tf-check-tools*)",
+      "Bash(tf-init*)",
+      "Bash(tf-fmt*)",
+      "Bash(tf-validate*)",
+      "Bash(tf-lint*)",
+      "Bash(tf-clean-tflint*)"
     ],
     "deny": [
       "Bash(terraform apply*)",

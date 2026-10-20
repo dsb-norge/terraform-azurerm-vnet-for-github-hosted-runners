@@ -43,11 +43,13 @@ The module should include both unit tests and integration tests:
 
 ## Code Linting
 
-TFLint is used for linting. The configuration file is in `.tflint.hcl` and includes:
+TFLint is used for linting. The configuration file is `.tflint.hcl` in the repository root and includes:
 
 - Terraform language rules
 - Provider-specific rules
 - Formatting rules
+
+The one configuration is used for the module root, its submodules and every example, by CI and by the dsb CLI alike; examples have no configuration of their own. CI validates and lints every example as well as the module root, so a failing example fails the pull request. See "Command invocations for working with the project" for how to run the same checks locally.
 
 ## Example Usage Pattern
 
@@ -172,25 +174,52 @@ Every module repository versions and updates its dependencies the same way. The 
 
 These are the commands to validate the code in the project. The commands should be executed from bash in the root directory of the project.
 
+Validation and linting go through the dsb CLI ([terraform-helpers](https://github.com/dsb-norge/terraform-helpers)), which checks the module the way CI does: the module root, its submodules and every example, with the tflint version the repository's CI workflow pins and the module root's `.tflint.hcl`. Do not call `tflint` directly. Load the CLI into the current shell first, as a command of its own (never chained with `&&` or `;`):
+
 ```shell
-  # Init project, run fmt and validate
-  terraform init -reconfigure
-  terraform fmt -recursive
-  terraform validate
+  # load authenticated with GitHub cli
+  export ZSH_VERSION=""
+  eval "$(gh api -H 'Accept: application/vnd.github.v3.raw' /repos/dsb-norge/terraform-helpers/contents/dsb-tf-proj-helpers.sh)"
 
-  # Lint with TFLint, calling script from https://github.com/dsb-norge/terraform-tflint-wrappers
-  alias lint='curl -s https://raw.githubusercontent.com/dsb-norge/terraform-tflint-wrappers/main/tflint_linux.sh | bash -s --'
-  lint
-
-  # Validate all example directories
-  for example_dir in examples/*/; do
-    dir_name=${example_dir%*/}
-    if ! terraform -chdir=${dir_name} init; then echo "terraform init failed in ${dir_name}"; break; fi
-    if ! terraform -chdir=${dir_name} validate; then echo "terraform validate failed in ${dir_name}"; break; fi
-    if ! terraform -chdir=${dir_name} fmt -check; then echo "terraform fmt check failed in ${dir_name}"; break; fi
-    if ! .tflint/tflint -chdir=${dir_name} --config .tflint.hcl; then echo "tflint failed in ${dir_name}"; break; fi
-  done
+  # or load from public endpoint with curl
+  export ZSH_VERSION=""
+  eval "$(curl -s https://raw.githubusercontent.com/dsb-norge/terraform-helpers/main/dsb-tf-proj-helpers.sh)"
 ```
+
+`export ZSH_VERSION=""` belongs on the line before the `eval`: without it, the CLI's file discovery can silently find nothing inside an AI agent's shell. Load the CLI once per shell; `tf-help` tells you whether it is loaded.
+
+Then validate and lint everything:
+
+```shell
+  # Init the module root and every example, fix formatting, validate both
+  tf-init-all
+  tf-fmt-fix
+  tf-validate-all
+
+  # Lint the module root and its submodules, then every example
+  tf-lint-all
+```
+
+Or one part at a time:
+
+```shell
+  # The module root and its submodules
+  tf-init
+  tf-validate
+  tf-lint
+
+  # One example, by its directory name under examples/
+  tf-init-example 01-basic
+  tf-validate-example 01-basic
+  tf-lint-example 01-basic
+
+  # Every example
+  tf-init-all-examples
+  tf-validate-all-examples
+  tf-lint-all-examples
+```
+
+A directory has to be initialised before it is linted: `tf-lint` needs `tf-init`, and `tf-lint-example` needs `tf-init-example`. Every example is linted with the module root's `.tflint.hcl`; a `.tflint.hcl` inside an example is never used. When the module root has no `.tflint.hcl`, `tf-lint` writes the default there: commit it. Run `tf-help` for every command and its options.
 
 ### Code Testing
 
@@ -283,6 +312,26 @@ These are the coding guidelines for Terraform. The goal is to maintain consisten
 2. Group related resources together in the same file or module.
 3. Use the `depends_on` attribute explicitly only when Terraform cannot automatically determine dependencies.
 4. Implement proper deletion protection for critical resources.
+
+### Azure Verified Modules (AVM)
+
+1. Set `enable_telemetry = false` on every call of an AVM module (`source = "Azure/avm-…"`), as a paragraph of its own after `version`, with a comment saying why:
+
+    ```hcl
+    module "vnet" {
+      source  = "Azure/avm-res-network-virtualnetwork/azurerm"
+      version = "0.22.3"
+
+      # opt out of AVM modtm telemetry: its tag plans a change on every version bump, which keeps Dependabot's bumps from auto-merging
+      enable_telemetry = false
+
+      # ...
+    }
+    ```
+
+    With telemetry on, the module's `modtm_telemetry` resource carries the module version in a tag, so every version bump plans a change even when nothing in Azure changes, and no Dependabot bump of the module can plan clean and merge itself. In a module that calls an AVM module, the telemetry resources end up in every caller's state, so the churn reaches every caller.
+2. Turning telemetry off on an existing call destroys its telemetry resources once: `modtm_telemetry` and, where the module has one, `random_uuid`, including those of the AVM submodules it calls. They exist only in Terraform state; nothing in Azure changes.
+3. A module without an `enable_telemetry` input, such as a submodule like `Azure/avm-res-network-firewallpolicy/azurerm//modules/rule_collection_groups`, has no telemetry to turn off.
 
 ### Code Documentation
 
