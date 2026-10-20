@@ -45,6 +45,26 @@ These are the coding guidelines for Terraform. The goal is to maintain consisten
 3. Use the `depends_on` attribute explicitly only when Terraform cannot automatically determine dependencies.
 4. Implement proper deletion protection for critical resources.
 
+### Azure Verified Modules (AVM)
+
+1. Set `enable_telemetry = false` on every call of an AVM module (`source = "Azure/avm-…"`), as a paragraph of its own after `version`, with a comment saying why:
+
+    ```hcl
+    module "vnet" {
+      source  = "Azure/avm-res-network-virtualnetwork/azurerm"
+      version = "0.22.3"
+
+      # opt out of AVM modtm telemetry: its tag plans a change on every version bump, which keeps Dependabot's bumps from auto-merging
+      enable_telemetry = false
+
+      # ...
+    }
+    ```
+
+    With telemetry on, the module's `modtm_telemetry` resource carries the module version in a tag, so every version bump plans a change even when nothing in Azure changes, and no Dependabot bump of the module can plan clean and merge itself. In a module that calls an AVM module, the telemetry resources end up in every caller's state, so the churn reaches every caller.
+2. Turning telemetry off on an existing call destroys its telemetry resources once: `modtm_telemetry` and, where the module has one, `random_uuid`, including those of the AVM submodules it calls. They exist only in Terraform state; nothing in Azure changes.
+3. A module without an `enable_telemetry` input, such as a submodule like `Azure/avm-res-network-firewallpolicy/azurerm//modules/rule_collection_groups`, has no telemetry to turn off.
+
 ### Code Documentation
 
 1. Use # for single and multi-line comments.
