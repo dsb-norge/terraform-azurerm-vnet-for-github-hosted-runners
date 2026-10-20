@@ -28,11 +28,9 @@
 # TFLint
 ###############################################################################
 
-# Config files
-**/.tflint.hcl
-
-# Except config files for envs
-!envs/**/.tflint.hcl
+# Config files in examples: every example is linted with the module root's .tflint.hcl,
+# so a config in an example is a stray and never used. The root's config is committed.
+/examples/**/.tflint.hcl
 
 # Local tflint directories
 **/.tflint/*
