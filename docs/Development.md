@@ -4,24 +4,33 @@ Below you can find basic guidelines and rules that must be followed during modul
 
 ## Validate your code
 
+Validation and linting go through the dsb CLI, [terraform-helpers](https://github.com/dsb-norge/terraform-helpers),
+which checks the module the way CI does: the module root and its submodules, then every example, with
+the tflint version pinned in `.github/workflows/test.yaml`. Every directory is linted with the root's
+`.tflint.hcl`, examples included; a `.tflint.hcl` inside an example is never used. The rules both
+follow are [Linting](https://github.com/dsb-norge/github-actions-terraform/blob/main/docs/Linting.md)
+in github-actions-terraform.
+
+A directory is linted once it is initialised: `tf-lint` needs `tf-init`, and
+`tf-lint-example <example>` needs `tf-init-example <example>`. When the root has no `.tflint.hcl`,
+`tf-lint` writes the default there: commit it. `tf-help` lists every command.
+
 ```shell
-  # Init project, run fmt and validate
-  terraform init -reconfigure
-  terraform fmt -recursive
-  terraform validate
+  # Load the dsb CLI, make sure to be authenticated with GitHub cli in advance
+  source <(gh api -H "Accept: application/vnd.github.v3.raw" /repos/dsb-norge/terraform-helpers/contents/dsb-tf-proj-helpers.sh) ;
 
-  # Lint with TFLint, calling script from https://github.com/dsb-norge/terraform-tflint-wrappers
-  alias lint='curl -s https://raw.githubusercontent.com/dsb-norge/terraform-tflint-wrappers/main/tflint_linux.sh | bash -s --'
-  lint
+  # Init the module root and every example, fix formatting, validate both
+  tf-init-all
+  tf-fmt-fix
+  tf-validate-all
 
-  # Validate all example directories
-  for example_dir in examples/*/; do
-    dir_name=${example_dir%*/}
-    if ! terraform -chdir=${dir_name} init; then echo "terraform init failed in ${dir_name}"; break; fi
-    if ! terraform -chdir=${dir_name} validate; then echo "terraform validate failed in ${dir_name}"; break; fi
-    if ! terraform -chdir=${dir_name} fmt -check; then echo "terraform fmt check failed in ${dir_name}"; break; fi
-    if ! .tflint/tflint -chdir=${dir_name} --config .tflint.hcl; then echo "tflint failed in ${dir_name}"; break; fi
-  done
+  # Lint the module root and its submodules, then every example
+  tf-lint-all
+
+  # Or one part at a time: the module root and its submodules, one example, every example
+  tf-lint
+  tf-lint-example 01-basic
+  tf-lint-all-examples
 
   # Manually test all examples
   az account set --subscription 'GUID HERE'
